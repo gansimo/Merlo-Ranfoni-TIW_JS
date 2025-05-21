@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbali</title>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/base.css" th:href="@{/css/base.css}"/>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/layout.css" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/form.css" th:href="@{/css/form.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/table.css" th:href="@{/css/table.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/button.css" th:href="@{/css/button.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/verbal.css" th:href="@{/css/verbal.css}" />
+</head>
+<body>
+  <header>
+    <h1>MegaloPoli - Elenco Verbali</h1>
+  </header>
+  
+  <main>
+    <div class="page-header">
+      <h2 class="page-title">I tuoi verbali</h2>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome del corso</th>
+            <th>Data dell'appello</th>
+            <th>ID del verbale</th>
+            <th>Data di creazione del verbale</th>
+            <th>Ora di creazione del verbale</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody th:remove="all-but-first">
+          <!-- 1) questo TR è il "template" dinamico -->
+          <tr th:each="verbal : ${verbalTable}">
+            <td th:text="${verbal.courseName}">Basi di dati</td>
+            <td th:text="${verbal.examDate}">2024-06-15</td>
+            <td th:text="${verbal.id}">1</td>
+            <td th:text="${verbal.date}">2024-06-20</td>
+            <td th:text="${verbal.hour}">14:30:00</td>
+            <td>
+              <a th:href="@{/GoToVerbalPage(verbalID=${verbal.id}, isNew=false)}">
+                <button type="button" class="btn btn-sm">Visualizza studenti</button>
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Programmazione</td>
+            <td>2024-05-20</td>
+            <td>2</td>
+            <td>2024-05-25</td>
+            <td>10:15:00</td>
+            <td>
+              <button type="button" class="btn btn-sm">Visualizza studenti</button>
+            </td>
+          </tr>
+          
+          <tr>
+            <td>Algoritmi e Strutture Dati</td>
+            <td>2024-07-05</td>
+            <td>3</td>
+            <td>2024-07-10</td>
+            <td>09:00:00</td>
+            <td>
+              <button type="button" class="btn btn-sm">Visualizza studenti</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="home-link">
+      <a th:href="@{/GoToHomeProfessor}" class="btn">Torna alla Home</a>
+    </div>
+  </main>
+  <footer>
+      <p>&copy; 2025 Università MegaloPoli, Milano</p>
+  </footer>
+</body>
+</html>

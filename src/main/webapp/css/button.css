@@ -1,0 +1,73 @@
+/* Stile base pulsanti */
+.btn {
+  display: inline-block;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.3px;
+}
+
+.btn:hover {
+  background: #2574a9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Pulsante principale (ad es. Submit) */
+.btn-primary {
+  background: linear-gradient(to right, var(--primary-color), #2574a9);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #2574a9, #1a5276);
+}
+
+/* Pulsante secondario */
+.btn-secondary {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #6a7a7d;
+}
+
+/* Pulsante logout con colore differente */
+.btn-logout {
+  background: var(--secondary-color);
+  float: right;
+  margin-right: 1rem; 
+}
+
+.btn-logout:hover {
+  background: #6a7a7d;
+}
+
+/* Pulsante di pericolo */
+.btn-danger {
+  background: var(--accent-color);
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbale</title>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/base.css" th:href="@{/css/base.css}"/>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/layout.css" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/form.css" th:href="@{/css/form.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/table.css" th:href="@{/css/table.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/button.css" th:href="@{/css/button.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/verbal.css" th:href="@{/css/verbal.css}" />
+</head>
+<body>
+  <header>
+    <h1>MegaloPoli - Verbale</h1>
+  </header>
+  
+  <main>
+    <div>
+      <div>
+        <h2 th:if="${isNew == 'true'}" class="success-title">Nuovo verbale creato con successo</h2>
+        <h2 th:if="${isNew == 'false'}">Dati del verbale richiesto:</h2>
+      </div>
+    </div>
+    
+    <div class="verbal-info">
+      <div class="info-row">
+        <div class="info-label">Codice identificativo del verbale:</div>
+        <div class="info-value" th:text="${verbal.id}">0</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Data e ora di creazione del verbale:</div>
+        <div class="info-value" th:text="${verbal.hour}">2000-01-01 00:00:00</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Nome del corso:</div>
+        <div class="info-value" th:text="${verbal.courseName}">Basi di Dati</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Data d'appello del corso:</div>
+        <div class="info-value" th:text="${verbal.examDate}">2000-01-01</div>
+      </div>
+    </div>
+    
+    <div class="section-header">
+      <h2>Elenco studenti inclusi nel corrente verbale:</h2>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Matricola</th>
+            <th>Cognome</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Voto</th>
+          </tr>
+        </thead>
+        <tbody th:remove="all-but-first">
+          <!-- 1) questo TR è il "template" dinamico -->
+          <tr th:each="student : ${studentTable}">
+            <td th:text="${student.matr}">S123456</td>
+            <td th:text="${student.surname}">Rossi</td>
+            <td th:text="${student.name}">Luigi</td>
+            <td th:text="${student.mail}">l.rossi@example.com</td>
+            <td th:text="${student.grade}">28</td>
+          </tr>
+
+          <tr>
+            <td>S654321</td>
+            <td>Bianchi</td>
+            <td>Maria</td>
+            <td>m.bianchi@example.com</td>
+            <td>30 e lode</td>
+          </tr>
+          <tr>
+            <td>S100001</td>
+            <td>Verdi</td>
+            <td>Anna</td>
+            <td>a.verdi@example.com</td>
+            <td>assente</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="home-link">
+      <a th:href="@{/GoToHomeProfessor}" class="btn">Torna alla Home</a>
+    </div>
+  </main>
+  <footer>
+      <p>&copy; 2025 Università MegaloPoli, Milano</p>
+  </footer>
+</body>
+</html>

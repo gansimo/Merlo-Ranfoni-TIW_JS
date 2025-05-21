@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Studente</title>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/base.css" th:href="@{/css/base.css}"/>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/layout.css" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/form.css" th:href="@{/css/form.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/table.css" th:href="@{/css/table.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/button.css" th:href="@{/css/button.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/verbal.css" th:href="@{/css/verbal.css}" />
+</head>
+<body>
+  <header>
+        <div>
+            <form th:action="@{/Logout}" method="post">
+                <button type="submit" class="btn btn-logout">Logout</button>
+            </form>
+        </div>
+        <h1>MegaloPoli - Home Page Studente</h1>
+        <h3>    Bentornato, <span th:text="${session.user.name}">Nome</span> <span th:text="${session.user.surname}">Cognome</span></h3>
+        
+    </header>
+  
+  <main>
+    <section class="form-container">
+            <div th:if="${#lists.isEmpty(corsi)}">
+                <p>Nessun corso disponibile!</p>
+            </div>
+            <div th:if="${not #lists.isEmpty(corsi)}">
+                <form th:action="@{/GoToHomeStudent}" method="post">
+                    <label for="SelectedCourse">Seleziona corso:</label>
+                    <select name="SelectedCourse" id="SelectedCourse" required>
+                        <option value="" th:if="${selectedCourseID == null}" disabled selected>Seleziona un corso</option>
+                        <option th:each="c : ${corsi}"
+                       			th:value="${c.id}"
+                       			th:text="${'Corso ' + c.courseName + ' - Prof: ' + c.profName + ' ' + c.profSurname}"
+                       			th:selected="${c.id == selectedCourseID}">
+                       				Corso Basi di Dati - Prof: Mario Rossi
+               			</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Mostra date d'appello</button>
+                </form>
+            </div>
+     </section>
+     
+     
+     <section class="form-container" th:if="${appelli != null}">
+            <div th:if="${#lists.isEmpty(appelli)}">
+                <p>Nessun appello disponibile!</p>
+            </div>
+            <div th:if="${not #lists.isEmpty(appelli)}">
+                <form th:action="@{/SearchRound}" method="get">
+                    <input type="hidden" name="selectedCourseID" th:value="${selectedCourseID}" />
+                    <label for="selectedExam">Seleziona data d'appello:</label>
+                    <select name="selectedExam" id="selectedExam" required>
+                        <option th:each="app : ${appelli}"
+                                th:value="${app.date}"
+                                th:text="${#temporals.format(app.date, 'dd/MM/yyyy')}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Vedi informazioni appello</button>
+                </form>
+            </div>
+    </section>
+  </main>
+  <footer>
+      <p>&copy; 2025 Università MegaloPoli, Milano</p>
+  </footer>
+</body>
+</html>

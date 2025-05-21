@@ -1,0 +1,111 @@
+/* verbal.css - Styles specific to the verbal (exam record) page */
+
+/* Success message styling */
+.success-title {
+  color: #27ae60;
+}
+
+.success-title::after {
+  background-color: #27ae60;
+}
+
+.failure-title {
+	color: #e83617;
+}
+
+/* Verbal information styling */
+.verbal-info {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--primary-color);
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--light-gray);
+  padding-bottom: 0.5rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--primary-dark);
+  width: 60%;
+  padding-right: 1rem;
+}
+
+.info-value {
+  width: 60%;
+}
+
+.section-header {
+  margin: 2rem 0 1rem;
+  border-bottom: 1px solid var(--light-gray);
+  padding-bottom: 0.5rem;
+}
+
+.section-header h2 {
+  color: var(--primary-dark);
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+/* Print styles for verbal */
+@media print {
+  header, .logout-link, .home-link {
+    display: none;
+  }
+  
+  body {
+    background: white;
+  }
+  
+  main {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .verbal-info {
+    border-left: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  table {
+    box-shadow: none;
+  }
+  
+  th {
+    background: #f0f0f0 !important;
+    color: black !important;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .info-row {
+    flex-direction: column;
+  }
+  
+  .info-label, .info-value {
+    width: 100%;
+  }
+  
+  .info-label {
+    margin-bottom: 0.3rem;
+  }
+  
+  .verbal-info {
+    padding: 1rem;
+  }
+}

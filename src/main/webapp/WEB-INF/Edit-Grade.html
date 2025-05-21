@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifica Voto Studente</title>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/base.css" th:href="@{/css/base.css}"/>
+  <link rel="stylesheet" type="text/css" media="all" href="./css/layout.css" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/form.css" th:href="@{/css/form.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/table.css" th:href="@{/css/table.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/button.css" th:href="@{/css/button.css}" />
+  <link rel="stylesheet" type="text/css" media="all" href="./css/verbal.css" th:href="@{/css/verbal.css}" />
+</head>
+<body>
+  <header>
+    <h1>MegaloPoli - Modifica voto</h1>
+  </header>
+  
+  <main>
+    <div>
+      <h2 th:text="'Modifica voto per lo studente ' 
+          + ${selectedStudent.name} + ' ' + ${selectedStudent.surname} + ' relativo all`appello di ' + ${courseName} + ' in data ' + ${examDate}">
+        Modifica voto per lo studente Marco Rossi relativo all`appello di Basi di Dati in data 2024-06-15
+      </h2>
+    </div>
+    
+    <div class="verbal-info">
+      <div th:if="${selectedStudent.state == 'inserito' or selectedStudent.state == 'non inserito'}">
+        <div>
+          <div class="info-row">
+            <div class="info-label">Matricola:</div>
+            <div class="info-value" th:text="${selectedStudent.matr}">S123456</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Email:</div>
+            <div class="info-value" th:text="${selectedStudent.mail}">studente@uni.it</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Corso di laurea:</div>
+            <div class="info-value" th:text="${selectedStudent.course}">Informatica</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Voto attuale:</div>
+            <div class="info-value" th:text="${selectedStudent.grade}">28</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Stato attuale:</div>
+            <div class="info-value" th:text="${selectedStudent.state}">inserito</div>
+          </div>
+        </div>
+        
+        <div class="form-container">
+          <form th:action="@{/EditGrade}" method="post">
+            <input type="hidden" name="selectedStudentID" th:value="${studID}" />
+            <input type="hidden" name="selectedCourseID" th:value="${courseID}" />
+            <input type="hidden" name="date" th:value="${examDate}" />
+            
+            <div>
+              <label for="newGrade">Nuovo voto:</label>
+              <select id="newGrade" name="newGrade">
+                <option value="assente">assente</option>
+                <option value="rimandato">rimandato</option>
+                <option value="riprovato">riprovato</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="30 e lode">30 e lode</option>
+              </select>
+            </div>
+            
+            <div>
+              <button type="submit" class="btn btn-primary">Conferma</button>
+              <a th:href="@{/GoToStudentTable(selectedCourseID=${courseID}, date=${examDate})}" class="btn btn-secondary">Annulla</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+      <p>&copy; 2025 Università MegaloPoli, Milano</p>
+  </footer>
+</body>
+</html>

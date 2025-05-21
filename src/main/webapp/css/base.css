@@ -1,0 +1,65 @@
+/* Resetta margini e padding globali, imposta box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Definizione palette colori e tipografia base */
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2c3e50;
+  --secondary-color: #7f8c8d;
+  --light-gray: #ecf0f1;
+  --bg-color: #f9f9f9;
+  --text-color: #2c3e50;
+  --accent-color: #e74c3c;
+  --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+html {
+  font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+.spacing {
+	padding-top: 6px;
+}
+
+.center {
+	display: flex;
+  	justify-content: center;
+  	text-align: center;
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Home Professore</title>
+    <link rel="stylesheet" href="css/base.css?v=1.0">
+    <link rel="stylesheet" href="css/layout.css?v=1.0">
+    <link rel="stylesheet" href="css/button.css?v=1.0">
+    <link rel="stylesheet" href="css/form.css?v=1.0">
+    <link rel="stylesheet" href="css/table.css?v=1.0">
+    <link rel="stylesheet" href="css/verbal.css?v=1.0">
+    <script src="./javaScript/professorForms.js" charset="utf-8" defer></script>
+    <script src="./javaScript/studentTable.js" charset="utf-8" defer></script>
+    <script src="./javaScript/sortTable.js" charset="utf-8" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>MegaloPoli - Home Page Professore</h1>
+        <h3>Bentornato, professor <span id="userName">Nome</span> <span id="userSurname">Cognome</span></h3>
+        <div>
+            <button id="logoutButton" class="btn btn-logout">Logout</button>
+        </div>
+    </header>
+    <main>
+        <section id="courseSelectionContainer" class="form-container">
+            <form id="courseForm">
+                <label for="courseSelect">Seleziona corso:</label>
+                <select name="courseSelect" id="courseSelect" required>
+                </select>
+            </form>
+            <p id="noCoursesMessage" class="message">Non ci sono corsi disponibili</p>
+        </section>
+
+        <section id="dateSelectionContainer" class="form-container">
+            <form id="dateForm">
+                <label for="dateSelect">Seleziona data d'appello:</label>
+                <select name="date" id="dateSelect" required>
+                </select>
+                <button type="button" id="viewButton" class="btn btn-primary">Vedi informazioni appello</button>
+            </form>
+            <p id="noDatesMessage" class="message">Non ci sono date disponibili per questo corso</p>
+        </section>
+
+        <section id="studentTableContainer" class="table-container">
+            <h2 id="studentTableTitle"></h2>
+            <!-- The student table will be dynamically inserted here -->
+        </section>
+
+        <div class="center">
+            <button type="button" id="viewVerbalsButton" class="btn center">Visualizza i tuoi verbali</button>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Università Megalopoli, Milano</p>
+    </footer>
+</body>
+
+</html>
