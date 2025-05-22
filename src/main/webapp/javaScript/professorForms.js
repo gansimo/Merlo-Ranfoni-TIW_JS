@@ -1,7 +1,5 @@
-(function () { // IIFE per incapsulare il codice
+(function () {
 
-	// URL della tua servlet GET che restituisce i corsi
-	// === IMPORTANTE: ADATTA QUESTO URL ===
 	const URL_GET_COURSES = "GoToHomeProfessor";
 	const URL_LOGOUT = "Logout";
 	const URL_GET_USER = "GetUserData";
@@ -10,21 +8,21 @@
 	var dateList = new DatesList(document.getElementById("dateSelect"));
 
 	window.addEventListener("load", () => {
-		// Nascondi i messaggi all'avvio
+		//hiding mex at reload
 		document.getElementById("noCoursesMessage").style.display = "none";
 		document.getElementById("noDatesMessage").style.display = "none";
 		document.getElementById("studentTableContainer").style.display = "none";
 
-		// Carica i dati dell'utente
+		//get user infos
 		loadUserData();
 
-		// Carica i corsi
+		//get prof courses AT PAGE RELOAD, in order to see them without clicking
 		coursesList.show();
 
-		// Registra il listener per il cambio di selezione
+		//trigger showing dates when the user changes the selected course  (in this way we also simulate the first fake selection, so at the reload dates for the default exam are shown)
 		document.getElementById("courseSelect").addEventListener('change', function (e) {
 			e.preventDefault();
-			// Clear table container
+			//we clear table container and title when we change the selected course
 			const tableContainer = document.getElementById("studentTableContainer");
 			const tableTitle = document.getElementById("studentTableTitle");
 			tableTitle.textContent = "";
@@ -33,12 +31,12 @@
 			}
 			tableContainer.style.display = "none";
 
-			if (this.value) {
+			if (this.value) { //trigger showing dates with default value
 				loadDatesForCourse(this.value);
 			}
 		});
 
-		// Registra il listener per il logout
+		
 		document.getElementById("logoutButton").addEventListener('click', function (e) {
 			e.preventDefault();
 			makeCall("POST", URL_LOGOUT, null, function (req) {
@@ -52,7 +50,7 @@
 			});
 		});
 
-		// Registra il listener per il bottone "Vedi informazioni appello"
+		//button to show the student table, using the values of the two forms
 		document.getElementById("viewButton").addEventListener('click', function (e) {
 			e.preventDefault();
 			const courseId = document.getElementById("courseSelect").value;
@@ -131,7 +129,7 @@
 							}
 							self.update(coursesToShow);
 
-							// Dopo aver aggiornato la lista dei corsi, carica le date del primo corso
+							//only if there is at least 1 course, show the relative dates
 							if (coursesToShow.length > 0) {
 								loadDatesForCourse(coursesToShow[0].id);
 							}
@@ -190,4 +188,4 @@
 		}
 	}
 
-})(); // Fine IIFE
+})();

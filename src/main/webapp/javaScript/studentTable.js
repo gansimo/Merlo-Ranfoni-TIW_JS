@@ -4,12 +4,28 @@
     const URL_PUBLISH_GRADES = "PublishGrades";
     const URL_VERBALIZE_GRADES = "VerbalizeGrades";
     const URL_GET_VERBAL = "GoToVerbalPage";
+    const URL_GET_VERBALS = "GetVerbals"
 
-    // Container for the table
+    //table container: used for the student table, verbal table, single verbal students table
     const tableContainer = document.getElementById("studentTableContainer");
     const tableTitle = document.getElementById("studentTableTitle");
 
-    // Function to create the table header
+    function makeCall(method, url, formData, cback) {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function () {
+            cback(req);
+        };
+
+        req.open(method, url);
+
+        if (formData === null) {
+            req.send();
+        } else {
+            req.send(formData);
+        }
+    }
+
+    //general student table header generator
     function createTableHeader() {
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
@@ -29,7 +45,7 @@
         return thead;
     }
 
-    // Function to create grade dropdown
+    //dropdown generator to edit grade
     function createGradeDropdown(student) {
         const select = document.createElement("select");
         select.className = "grade-select";
@@ -53,7 +69,7 @@
         return select;
     }
 
-    // Function to update grade
+    //server call to update grade, triggered by clicking the modifica button
     function updateGrade(studentId, courseId, date, newGrade) {
         const formData = new FormData();
         formData.append("selectedStudentID", studentId);
@@ -61,30 +77,23 @@
         formData.append("date", date);
         formData.append("newGrade", newGrade);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", URL_EDIT_GRADE);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 && xhr.responseText === "success") {
-                    // If successful, refresh the table
+        makeCall("POST", URL_EDIT_GRADE, formData, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200 && req.responseText === "success") {
                     handleViewButtonClick(courseId, date);
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Errore nell'aggiornamento del voto: " + xhr.responseText);
+                    alert("Errore nell'aggiornamento del voto: " + req.responseText);
                 }
             }
-        };
-
-        xhr.send(formData);
+        });
     }
 
-    // Function to create a table row for a student
+    //general student table row generator
     function createStudentRow(student, courseId, date) {
         const tr = document.createElement("tr");
 
-        // Add student data cells
         const cells = [
             student.matr,
             student.surname,
@@ -104,7 +113,7 @@
             tr.appendChild(td);
         });
 
-        // Add action button cell
+        //button to edit grade
         const actionCell = document.createElement("td");
         if (student.state === "inserito" || student.state === "non inserito") {
             const gradeSelect = createGradeDropdown(student);
@@ -114,7 +123,7 @@
             editButton.type = "button";
             editButton.className = "btn btn-sm";
             editButton.textContent = "Modifica";
-            editButton.addEventListener("click", function () {
+            editButton.addEventListener("click", function () {		//register server call to the button
                 updateGrade(student.id, courseId, date, gradeSelect.value);
             });
             actionCell.appendChild(editButton);
@@ -124,36 +133,31 @@
         return tr;
     }
 
-    // Function to publish grades
+    //server call to publish new edited grades
     function publishGrades(courseId, date) {
         const formData = new FormData();
         formData.append("selectedCourseID", courseId);
         formData.append("date", date);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", URL_PUBLISH_GRADES);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    if (xhr.responseText === "success") {
+        makeCall("POST", URL_PUBLISH_GRADES, formData, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    if (req.responseText === "success") {
                         alert("Voti pubblicati con successo");
                         handleViewButtonClick(courseId, date);
                     } else {
                         alert("Nessun voto da pubblicare");
                     }
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Errore nella pubblicazione dei voti: " + xhr.responseText);
+                    alert("Errore nella pubblicazione dei voti: " + req.responseText);
                 }
             }
-        };
-
-        xhr.send(formData);
+        });
     }
 
-    // Function to create verbal info section
+    //returns the new verbal created after verbalizing
     function createVerbalInfo(verbal) {
         const verbalInfo = document.createElement("div");
         verbalInfo.className = "verbal-info";
@@ -185,25 +189,23 @@
         return verbalInfo;
     }
 
-    // Function to display verbal data
+    //shows a verbal. "fromVerbalsTable" == true => need to show the verbal is new 
     function displayVerbalData(verbal, students, fromVerbalsTable = false) {
-        console.log("Displaying verbal data");
         tableContainer.style.display = "block";
-        // Clear existing content except the title
+        //re-using HTML table container, so we need to clean it (but not the tableTitle)
         while (tableContainer.children.length > 1) {
             tableContainer.removeChild(tableContainer.lastChild);
         }
 
-        // Update title only if not called from verbals table
         if (!fromVerbalsTable) {
             tableTitle.textContent = "Nuovo verbale creato con successo";
             tableTitle.className = "success-title";
         }
 
-        // Add verbal info
+        //we add the verbal infos into the table container
         tableContainer.appendChild(createVerbalInfo(verbal));
 
-        // Add section header
+        //little title for the students included in the verbal
         const sectionHeader = document.createElement("div");
         sectionHeader.className = "section-header";
         const header = document.createElement("h2");
@@ -211,7 +213,7 @@
         sectionHeader.appendChild(header);
         tableContainer.appendChild(sectionHeader);
 
-        // Create table
+        //now we can create the student table for those included in the last verbal
         const table = document.createElement("table");
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
@@ -247,125 +249,101 @@
         });
         table.appendChild(tbody);
 
-        // Add table to container
+        //adding the table in the container
         tableContainer.appendChild(table);
-        console.log("Verbal data displayed");
 
-        // Make the table sortable
+        //making the table sortable
         window.tableSorter.makeSortable(table);
     }
 
-    // Function to get verbal data
+    //server call to get verbal data
     function getVerbalData(verbalId, fromVerbalsTable = false) {
-        console.log("Getting verbal data for ID:", verbalId);
         const url = `${URL_GET_VERBAL}?verbalID=${verbalId}`;
-        console.log("Request URL:", url);
 
-        // Update title only if called from verbals table
+        //same parameter to know if the verbal is new
         if (fromVerbalsTable) {
             tableTitle.textContent = "Informazioni verbale:";
             tableTitle.classList.remove("success-title");
         }
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url);
-        console.log("XHR request opened");
-
-        xhr.onreadystatechange = function () {
-            console.log("XHR state changed:", xhr.readyState);
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                console.log("GetVerbalData response:", xhr.status, xhr.responseText);
-                if (xhr.status === 200) {
-                    const response = xhr.responseText;
-                    console.log("Raw response:", response);
-                    const [verbalJson, studentsJson] = response.split("|||");
-                    console.log("Split response - Verbal:", verbalJson);
-                    console.log("Split response - Students:", studentsJson);
+        makeCall("GET", url, null, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    const response = req.responseText;
+                    const [verbalJson, studentsJson] = response.split("|||");		//separator set in server
                     const verbal = JSON.parse(verbalJson);
                     const students = JSON.parse(studentsJson);
-                    console.log("Parsed verbal:", verbal);
-                    console.log("Parsed students:", students);
                     displayVerbalData(verbal, students, fromVerbalsTable);
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Errore nel recupero dei dati del verbale: " + xhr.responseText);
+                    alert("Errore nel recupero dei dati del verbale: " + req.responseText);
                 }
             }
-        };
-
-        xhr.send();
-        console.log("XHR request sent");
+        });
     }
 
-    // Function to verbalize grades
+    //server call to verbalize published grades
     function verbalizeGrades(courseId, date) {
-        console.log("Starting verbalization for course:", courseId, "date:", date);
         const formData = new FormData();
         formData.append("selectedCourseID", courseId);
         formData.append("date", date);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", URL_VERBALIZE_GRADES);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                console.log("VerbalizeGrades response:", xhr.status, xhr.responseText);
-                if (xhr.status === 200) {
-                    const response = xhr.responseText;
+        makeCall("POST", URL_VERBALIZE_GRADES, formData, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    const response = req.responseText;
                     if (response.startsWith("success:")) {
                         const verbalId = response.split(":")[1];
-                        console.log("Verbal created with ID:", verbalId);
                         getVerbalData(verbalId);
                     } else {
                         alert("Nessun voto da verbalizzare");
                     }
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Errore nella verbalizzazione dei voti: " + xhr.responseText);
+                    alert("Errore nella verbalizzazione dei voti: " + req.responseText);
                 }
             }
-        };
-
-        xhr.send(formData);
+        });
     }
 
-    // Function to create the complete table
+    //general student table generator
     function createStudentTable(students, courseId, courseName, date) {
         tableContainer.style.display = "block";
         tableTitle.classList.remove("success-title");
-        // Clear existing content except the title
+        //cleaning the table container, except the title
         while (tableContainer.children.length > 1) {
             tableContainer.removeChild(tableContainer.lastChild);
         }
 
-        // Update title based on whether there are students
+        //no students => custom empty table title
         if (students.length === 0) {
             tableTitle.textContent = `Non ci sono studenti iscritti all'appello del ${date} del corso ${courseName}`;
             return;
         }
 
+        //students => basic title
         tableTitle.textContent = `Elenco Studenti Iscritti all'appello del ${date} del corso ${courseName}`;
         tableTitle.classList.remove("success-title");
 
-        // Create table
+        //creating header
         const table = document.createElement("table");
         table.appendChild(createTableHeader());
 
+        //creating rows and appending them in the body
         const tbody = document.createElement("tbody");
         students.forEach(student => {
             tbody.appendChild(createStudentRow(student, courseId, date));
         });
         table.appendChild(tbody);
 
-        // Add table to container
         tableContainer.appendChild(table);
 
-        // Make the table sortable
+        //making table sortable
         window.tableSorter.makeSortable(table);
 
-        // Add action buttons
+        //buttons to publish/verbalize
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "center";
 
@@ -388,40 +366,34 @@
         tableContainer.appendChild(buttonContainer);
     }
 
-    // Function to handle the view button click
+    //function used in professorForms.js when the user wants to see students of a specific exam by clicking the button
     function handleViewButtonClick(courseId, date) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", `${URL_GET_STUDENT_TABLE}?selectedCourseID=${courseId}&date=${date}`);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
+        makeCall("GET", `${URL_GET_STUDENT_TABLE}?selectedCourseID=${courseId}&date=${date}`, null, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    const response = JSON.parse(req.responseText);
                     createStudentTable(response.students, response.courseId, response.courseName, response.date);
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
                     alert("Errore nel recupero dei dati degli studenti");
                 }
             }
-        };
-
-        xhr.send();
+        });
     }
 
-    // Function to create verbal table
+    //verbal table generator
     function createVerbalTable(verbals) {
         tableContainer.style.display = "block";
-        // Clear existing content except the title
+        //cleaning the table container except the title
         while (tableContainer.children.length > 1) {
             tableContainer.removeChild(tableContainer.lastChild);
         }
 
-        // Update title
+        //custom title
         tableTitle.textContent = "I tuoi verbali:";
         tableTitle.classList.remove("success-title");
 
-        // Create table
         const table = document.createElement("table");
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
@@ -461,7 +433,7 @@
                 tr.appendChild(td);
             });
 
-            // Add action button cell
+            //buttons to see the students of the selected verbal
             const actionCell = document.createElement("td");
             const viewButton = document.createElement("button");
             viewButton.type = "button";
@@ -477,38 +449,33 @@
         });
         table.appendChild(tbody);
 
-        // Add table to container
         tableContainer.appendChild(table);
 
-        // Make the table sortable
         window.tableSorter.makeSortable(table);
     }
 
-    // Function to get verbals
+    //server call to get all verbals of the logged user
     function getVerbals() {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "GetVerbals");
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    const verbals = JSON.parse(xhr.responseText);
+        makeCall("GET", URL_GET_VERBALS, null, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    const verbals = JSON.parse(req.responseText);
                     createVerbalTable(verbals);
-                } else if (xhr.status === 401) {
+                } else if (req.status === 401) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Errore nel recupero dei verbali: " + xhr.responseText);
+                    alert("Errore nel recupero dei verbali: " + req.responseText);
                 }
             }
-        };
-
-        xhr.send();
+        });
     }
 
-    // Add event listener for verbals button
-    document.getElementById("viewVerbalsButton").addEventListener("click", getVerbals);
+    //listener to get the all verbals table
+    window.addEventListener("load", () => {
+        document.getElementById("viewVerbalsButton").addEventListener("click", getVerbals);
+    });
 
-    // Export the function to be used by other scripts
+    //exporting function from the .js
     window.studentTable = {
         handleViewButtonClick: handleViewButtonClick
     };
