@@ -27,9 +27,7 @@ import it.polimi.tiw.beans.UserBean;
 import it.polimi.tiw.daos.ExamDAO;
 import it.polimi.tiw.daos.StudentTableDAO;
 
-/**
- * Servlet implementation class GoToAppello
- */
+
 @WebServlet("/GoToStudentTable")
 public class GoToStudentTable extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -69,19 +67,16 @@ public class GoToStudentTable extends HttpServlet {
 		HttpSession session = request.getSession();
 		UserBean user = (UserBean) session.getAttribute("user");
 		
-		// Check session
 		if (session.isNew() || user == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		
-		// Check if user is a professor
 		if (!user.getCourse().equals("Docente")) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		
-		// Check parameters
 		if (request.getParameter("selectedCourseID") == null || request.getParameter("date") == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -119,14 +114,12 @@ public class GoToStudentTable extends HttpServlet {
 			return;
 		}
 		
-		// Create response object
 		JsonObject responseObject = new JsonObject();
 		responseObject.add("students", gson.toJsonTree(students));
 		responseObject.addProperty("courseName", courseName);
 		responseObject.addProperty("date", stringDate);
 		responseObject.addProperty("courseId", selectedCourseID);
 		
-		// Send response
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(gson.toJson(responseObject));

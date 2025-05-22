@@ -65,11 +65,9 @@ public class GoToVerbalPage extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("GoToVerbalPage: Received request");
 		
 		HttpSession session = request.getSession(false);
 		if (session == null || session.getAttribute("user") == null) {
-			System.out.println("GoToVerbalPage: Unauthorized - No session");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("Unauthorized");
 			return;
@@ -77,7 +75,6 @@ public class GoToVerbalPage extends HttpServlet {
 
 		UserBean user = (UserBean) session.getAttribute("user");
 		if (!user.getCourse().equals("Docente")) {
-			System.out.println("GoToVerbalPage: Forbidden - Not a professor");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			response.getWriter().write("Forbidden");
 			return;
@@ -85,7 +82,6 @@ public class GoToVerbalPage extends HttpServlet {
 		
 		String verbalIdParam = request.getParameter("verbalID");
 		if(verbalIdParam == null) {
-			System.out.println("GoToVerbalPage: Bad request - Missing verbal ID");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Missing verbal ID");
 			return;
@@ -93,7 +89,6 @@ public class GoToVerbalPage extends HttpServlet {
 		
 		try {
 			int verbID = Integer.parseInt(verbalIdParam);
-			System.out.println("GoToVerbalPage: Processing verbal ID: " + verbID);
 			
 			VerbalDAO vDAO = new VerbalDAO(connection);
 			VerbalBean verb = vDAO.getVerbal(verbID, user.getId());
@@ -108,23 +103,17 @@ public class GoToVerbalPage extends HttpServlet {
 			StudentTableDAO stDAO = new StudentTableDAO(connection);
 			List<RegisteredStudent> students = stDAO.getStudentsFromVerbal(verbID);
 			
-			System.out.println("GoToVerbalPage: Found verbal and " + students.size() + " students");
-			
-			// Send response as text with verbal and students data
 			response.setContentType("text/plain");
 			response.setCharacterEncoding("UTF-8");
 			String verbalJson = gson.toJson(verb);
 			String studentsJson = gson.toJson(students);
 			String responseText = verbalJson + "|||" + studentsJson;
-			System.out.println("GoToVerbalPage: Sending response: " + responseText);
 			response.getWriter().write(responseText);
 			
 		} catch (NumberFormatException e) {
-			System.out.println("GoToVerbalPage: Bad request - Invalid verbal ID");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid verbal ID");
 		} catch (SQLException e) {
-			System.out.println("GoToVerbalPage: Database error: " + e.getMessage());
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Database error");
 		}

@@ -87,16 +87,9 @@ public class EditGrade extends HttpServlet {
         }
 
         try {
-            System.out.println("Parameters received:");
-            System.out.println("selectedCourseID: " + selectedCourseID);
-            System.out.println("selectedStudentID: " + selectedStudentID);
-            System.out.println("date: " + date);
-            System.out.println("newGrade: " + newGrade);
-
             int courseId = Integer.parseInt(selectedCourseID);
             int studentId = Integer.parseInt(selectedStudentID);
 
-            // Validate grade if it's a number
             if (!newGrade.equals("assente") && !newGrade.equals("rimandato") && !newGrade.equals("riprovato") && !newGrade.equals("30 e lode")) {
                 int gradeValue = Integer.parseInt(newGrade);
                 if (gradeValue < 18 || gradeValue > 30) {

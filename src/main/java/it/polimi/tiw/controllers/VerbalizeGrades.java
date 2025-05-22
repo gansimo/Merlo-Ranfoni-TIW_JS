@@ -103,7 +103,6 @@ public class VerbalizeGrades extends HttpServlet {
 			response.setCharacterEncoding("UTF-8");
 
 			if (updated > 0) {
-				// Get students to be verbalized
 				List<RegisteredStudent> students = stDAO.getNewVerbalizedStudents(courseId, date, user.getId());
 				
 				if (students.isEmpty()) {
@@ -112,14 +111,11 @@ public class VerbalizeGrades extends HttpServlet {
 					return;
 				}
 
-				// Create new verbal
 				VerbalDAO vDAO = new VerbalDAO(connection);
 				VerbalBean newVerbal = vDAO.createVerbal(courseId, date);
 				
-				// Insert students into verbal
 				vDAO.insertNewVerbalizedStudents(students, newVerbal);
 
-				// Return success with verbal ID
 				response.getWriter().write("success:" + newVerbal.getID());
 			} else {
 				response.getWriter().write("no_grades_to_verbalize");

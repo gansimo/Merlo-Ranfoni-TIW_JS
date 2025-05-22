@@ -52,16 +52,10 @@ public class CheckLogin extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Debug logging
-		System.out.println("Request content type: " + request.getContentType());
-		System.out.println("Request method: " + request.getMethod());
 		
 		String mail = request.getParameter("mail");
 		String psw = request.getParameter("psw");
-		
-		// Debug logging
-		System.out.println("Received parameters - mail: " + mail + ", psw: " + psw);
-		
+
 		if (mail == null || psw == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("{\"error\": \"Missing credentials\"}");
@@ -70,6 +64,7 @@ public class CheckLogin extends HttpServlet {
 		
 		UserDAO usr = new UserDAO(connection);
 		UserBean u = null;
+		
 		try {
 			u = usr.checkCredentials(mail, psw);
 		} catch (SQLException e) {
