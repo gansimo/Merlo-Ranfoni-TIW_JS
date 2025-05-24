@@ -8,6 +8,7 @@ public class ExamResult {
 	private int studentId;
 	private String mark;
 	private String state;
+	private String courseName;
 	
 	public void setCourseId(int cid){
 		courseId = cid;
@@ -47,5 +48,13 @@ public class ExamResult {
 	
 	public String getState() {
 		return state;
+	}
+	
+	public String getCourseName() {
+		return this.courseName;
+	}
+	
+	public void setCourseName(String cn) {
+		this.courseName = cn;
 	}
 }

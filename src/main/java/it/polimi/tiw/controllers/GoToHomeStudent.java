@@ -9,10 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,17 +28,18 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-import it.polimi.tiw.beans.UserBean;
 import it.polimi.tiw.beans.*;
 import it.polimi.tiw.daos.*;
 
 
 
 @WebServlet("/GoToHomeStudent")
+@MultipartConfig
 public class GoToHomeStudent extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
 	private TemplateEngine templateEngine;
+	private Gson gson;
 
 	public GoToHomeStudent() {
 		super();
@@ -63,45 +67,36 @@ public class GoToHomeStudent extends HttpServlet {
 		} catch (SQLException e) {
 			throw new UnavailableException("Couldn't get db connection");
 		}
+		gson = new Gson();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String loginpath = getServletContext().getContextPath() + "/index.html";
-		UserBean u = null;
-		HttpSession s = request.getSession();
-		if (s.isNew() || s.getAttribute("user") == null) {
-			response.sendRedirect(loginpath);
+		HttpSession session = request.getSession(false);
+		if (session == null || session.getAttribute("user") == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Unauthorized");
 			return;
-		} else {
-			u = (UserBean) s.getAttribute("user");
-			if (u.getCourse().equals("Docente")) {
-				response.sendRedirect(loginpath);
-				return;
-			}
+		}
+
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user.getCourse().equals("Docente")) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.getWriter().write("Forbidden");
+			return;
 		}
 		
-		
-		
-		System.out.println("Utente loggato ID = " + u.getId()); 
 		StudentDAO sDAO = new StudentDAO(connection);
-		List<Course> courses = null;
-		
+		List<Course> courses;
 		try {
-			courses = sDAO.findStudentCourses(u.getId());
-			System.out.println("CORSI TROVATI = " + courses.size());
+			courses = sDAO.findStudentCourses(user.getId());
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(gson.toJson(courses));
 		} catch (SQLException e) {
-			//throw new ServletException(e);
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database finding student courses");
- 		}
-		
-		
-		String path = "/WEB-INF/HomeStudent.html";
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
-        WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
-		ctx.setVariable("corsi", courses);
-		
-		templateEngine.process(path, ctx, response.getWriter());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().write("Database error");
+		}
 	}
 
 	
@@ -111,61 +106,46 @@ public class GoToHomeStudent extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		String loginpath = getServletContext().getContextPath() + "/index.html";
-		UserBean u = null;
-		HttpSession s = request.getSession();
-		if (s.isNew() || s.getAttribute("user") == null) {
-			response.sendRedirect(loginpath);
+		HttpSession session = request.getSession(false);
+		if (session == null || session.getAttribute("user") == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Unauthorized");
 			return;
-		} else {
-			u = (UserBean) s.getAttribute("user");
-			if (u.getCourse().equals("Docente")) {
-				response.sendRedirect(loginpath);
-				return;
-			}
 		}
-		System.out.println("Utente loggato ID = " + u.getId()); 
-		
+
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user.getCourse().equals("Docente")) {
+			System.out.println("prova1");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.getWriter().write("Forbidden");
+			return;
+		}
+
 		int selectedCourseID;
-		
 		try {
-		selectedCourseID = Integer.parseInt(request.getParameter("SelectedCourse"));
-		}catch (NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "SQL injection is forbidden!");
+			selectedCourseID = Integer.parseInt(request.getParameter("courseSelect"));
+		} catch (NumberFormatException e) {
+			System.out.println("prova2");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Invalid course ID");
 			return;
 		}
-		
-		
-		StudentDAO sDAO = new StudentDAO(connection);
-		List<Course> courses = new ArrayList<Course>();
-		try {
-			courses = sDAO.findStudentCourses(u.getId());
-		} catch (SQLException e) {
-			//throw new ServletException(e);
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database finding student courses");
- 		}
-		
+
 		CourseDAO cDAO = new CourseDAO(connection);
-		List<Exam> examDates = new ArrayList<Exam>();
-		
+		List<Exam> exams;
 		try {
-			examDates = cDAO.findStudentExams(selectedCourseID, u.getId());
+			exams = cDAO.findStudentExams(selectedCourseID, user.getId());
+			System.out.println(exams);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(gson.toJson(exams));
 		} catch (SQLException e) {
-			//throw new ServletException(e);
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database finding selected exam's dates");
- 		}
-		
-		String path = "/WEB-INF/HomeStudent.html";
-
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
-        WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
-
-        ctx.setVariable("corsi", courses);
-		ctx.setVariable("selectedCourseID", selectedCourseID);
-		ctx.setVariable("appelli", examDates);
-		templateEngine.process(path, ctx, response.getWriter());
-		
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().write("Database error");
+		}
 	}
+		
+	
 
 	public void destroy() {
 		try {

@@ -48,6 +48,7 @@ public class CourseDAO{
 	        try (ResultSet result = pstatement.executeQuery()) {
 	            while (result.next()) {
 	                Exam exam = new Exam();
+	                exam.setStringDate(result.getString("data"));
 	                exams.add(exam);
 	            }
 	        }

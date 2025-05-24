@@ -1,72 +1,71 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="it">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home Studente</title>
-  <link rel="stylesheet" type="text/css" media="all" href="./css/base.css" th:href="@{/css/base.css}"/>
-  <link rel="stylesheet" type="text/css" media="all" href="./css/layout.css" th:href="@{/css/layout.css}" />
-  <link rel="stylesheet" type="text/css" media="all" href="./css/form.css" th:href="@{/css/form.css}" />
-  <link rel="stylesheet" type="text/css" media="all" href="./css/table.css" th:href="@{/css/table.css}" />
-  <link rel="stylesheet" type="text/css" media="all" href="./css/button.css" th:href="@{/css/button.css}" />
-  <link rel="stylesheet" type="text/css" media="all" href="./css/verbal.css" th:href="@{/css/verbal.css}" />
+    <meta charset="ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Home Studente</title>
+    <link rel="stylesheet" href="css/base.css?v=1.0">
+    <link rel="stylesheet" href="css/layout.css?v=1.0">
+    <link rel="stylesheet" href="css/button.css?v=1.0">
+    <link rel="stylesheet" href="css/form.css?v=1.0">
+    <link rel="stylesheet" href="css/table.css?v=1.0">
+    <link rel="stylesheet" href="css/verbal.css?v=1.0">
+    
 </head>
+
 <body>
   <header>
-        <div>
-            <form th:action="@{/Logout}" method="post">
-                <button type="submit" class="btn btn-logout">Logout</button>
-            </form>
-        </div>
         <h1>MegaloPoli - Home Page Studente</h1>
-        <h3>    Bentornato, <span th:text="${session.user.name}">Nome</span> <span th:text="${session.user.surname}">Cognome</span></h3>
-        
+		<h3>Bentornato <span id="userName">Nome</span> <span id="userSurname">Cognome</span></h3>
+		<div>
+            <button id="logoutButton" class="btn btn-logout">Logout</button>
+        </div>        
     </header>
   
   <main>
-    <section class="form-container">
-            <div th:if="${#lists.isEmpty(corsi)}">
-                <p>Nessun corso disponibile!</p>
-            </div>
-            <div th:if="${not #lists.isEmpty(corsi)}">
-                <form th:action="@{/GoToHomeStudent}" method="post">
-                    <label for="SelectedCourse">Seleziona corso:</label>
-                    <select name="SelectedCourse" id="SelectedCourse" required>
-                        <option value="" th:if="${selectedCourseID == null}" disabled selected>Seleziona un corso</option>
-                        <option th:each="c : ${corsi}"
-                       			th:value="${c.id}"
-                       			th:text="${'Corso ' + c.courseName + ' - Prof: ' + c.profName + ' ' + c.profSurname}"
-                       			th:selected="${c.id == selectedCourseID}">
-                       				Corso Basi di Dati - Prof: Mario Rossi
-               			</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Mostra date d'appello</button>
-                </form>
-            </div>
-     </section>
+  
+    	<section id="courseSelectionContainer" class="form-container">
+            <form id="courseForm">
+                <label for="courseSelect">Seleziona corso:</label>
+                <select name="courseSelect" id="courseSelect" required>
+                </select>
+            </form>
+            <p id="noCoursesMessage" class="message">Non ci sono corsi disponibili</p>
+        </section>
+
+        <section id="dateSelectionContainer" class="form-container">
+            <form id="dateForm">
+                <label for="dateSelect">Seleziona data d'appello:</label>
+                <select name="date" id="dateSelect" required>
+                </select>
+                <button type="button" id="viewButton" class="btn btn-primary">Vedi esito appello</button>
+            </form>
+            <p id="noDatesMessage" class="message">Non ci sono date disponibili per questo corso</p>
+        </section>
      
-     
-     <section class="form-container" th:if="${appelli != null}">
-            <div th:if="${#lists.isEmpty(appelli)}">
-                <p>Nessun appello disponibile!</p>
-            </div>
-            <div th:if="${not #lists.isEmpty(appelli)}">
-                <form th:action="@{/SearchRound}" method="get">
-                    <input type="hidden" name="selectedCourseID" th:value="${selectedCourseID}" />
-                    <label for="selectedExam">Seleziona data d'appello:</label>
-                    <select name="selectedExam" id="selectedExam" required>
-                        <option th:each="app : ${appelli}"
-                                th:value="${app.date}"
-                                th:text="${#temporals.format(app.date, 'dd/MM/yyyy')}">
-                        </option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Vedi informazioni appello</button>
-                </form>
-            </div>
-    </section>
+        <section id="Empty" class = "title-container"></section>
+        
+	    <section id="markTableContainer" class="table-container" draggable="true" ondragstart="dragstartHandler(event)">
+	        <h2 id="markTableTitle" draggable="true" ondragstart="dragstartHandler(event)"></h2>
+	    	<!-- The mark table will be dynamically inserted here -->
+	    </section>
+	    
+	    <section id="markRejectButton" class=".btn-danger:hover" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)"></section>
+	    
+	    <section id="CancelTitle" class = "title-container"></section>
+	    <div id="Buttons" class="center"></div>
+	    
   </main>
+    
   <footer>
-      <p>&copy; 2025 Universit√† MegaloPoli, Milano</p>
+      <p>&copy; 2025 Universit‡ MegaloPoli, Milano</p>
   </footer>
 </body>
+<script src="./javaScript/studentForm.js" charset="utf-8" ></script>
+<script src="./javaScript/studentHomeGenerator.js" charset="utf-8" ></script>
+<script src="./javaScript/dragAndDrop.js" charset="utf-8" ></script>
 </html>

@@ -38,6 +38,7 @@ public class ExamDAO {
                     examResult.setStudentId(studentID);
                     examResult.setMark(result.getString("voto"));
                     examResult.setState(result.getString("stato"));
+                    examResult.setCourseName(findExamName(courseID));
                 	}
             }
         }     

@@ -7,15 +7,19 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -30,10 +34,12 @@ import it.polimi.tiw.daos.*;
 
 
 @WebServlet("/SearchRound")
+@MultipartConfig
 public class SearchRound extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
 	private TemplateEngine templateEngine;
+	private Gson gson;
 
 	public SearchRound() {
 		super();
@@ -61,80 +67,74 @@ public class SearchRound extends HttpServlet {
 		} catch (SQLException e) {
 			throw new UnavailableException("Couldn't get db connection");
 		}
+		gson = new Gson();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String loginpath = getServletContext().getContextPath() + "/index.html";
-		UserBean u = null;
-		HttpSession s = request.getSession();
-		if (s.isNew() || s.getAttribute("user") == null) {
-			response.sendRedirect(loginpath);
+	
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		HttpSession session = request.getSession(false);
+		if (session == null || session.getAttribute("user") == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Unauthorized");
 			return;
-		} else {
-			u = (UserBean) s.getAttribute("user");
-			if (u.getCourse().equals("Docente")) {
-				response.sendRedirect(loginpath);
-				return;
-			}
 		}
 		
-		if(request.getParameter("selectedCourseID") == null || request.getParameter("selectedExam") == null) {
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user.getCourse().equals("Docente")) {
+			System.out.println("prova1");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.getWriter().write("Forbidden");
+			return;
+		}
+		
+		if(request.getParameter("CourseSelect") == null || request.getParameter("DataSelect") == null) {
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you have not selected a course ID or an exam date!");
 			return;
 		}
 		
 		int selectedCourseID;
-		
 		try {
-		selectedCourseID = Integer.parseInt(request.getParameter("selectedCourseID"));
-		LocalDate date = LocalDate.parse(request.getParameter("selectedExam"), DateTimeFormatter.ISO_LOCAL_DATE);
-		}catch (DateTimeParseException | NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "SQL injection is forbidden!");
+			selectedCourseID = Integer.parseInt(request.getParameter("CourseSelect"));
+		} catch (NumberFormatException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Invalid course ID");
 			return;
 		}
 		
-		String data = request.getParameter("selectedExam");
-		
+		LocalDate selectedExam;
+		try {
+			selectedExam =  LocalDate.parse(request.getParameter("DataSelect"), DateTimeFormatter.ISO_LOCAL_DATE);
+		} catch (DateTimeParseException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Invalid exam date");
+			return;
+		}
+				
 		ExamDAO eDAO = new ExamDAO(connection);
 		ExamResult examResult = null;
+		String data = request.getParameter("DataSelect");
 		
 		try {
-			examResult = eDAO.findExamData(selectedCourseID, data, u.getId());
+			examResult = eDAO.findExamData(selectedCourseID, data, user.getId());
+			if(examResult.getMark() == null) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you are not subscribed to that exam!");
+				return;
+			}
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(gson.toJson(examResult));
 		} catch (SQLException e) {
-			//throw new ServletException(e);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database finding exam result");
  		}
-		
-		if(examResult.getMark() == null) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you are not subscribed to that exam!");
-			return;
-		}
-		
-		String courseName = null;
-		
-		try {
-			courseName = eDAO.findExamName(selectedCourseID);
-		} catch (SQLException e) {
-			//throw new ServletException(e);
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database finding courseName");
- 		}
-		
-		String path = "/WEB-INF/StudentExamPage.html";
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
-        WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
-        ctx.setVariable("nome_corso", courseName);
-		ctx.setVariable("esame", examResult);
-		ctx.setVariable("selectedCourseID", selectedCourseID);
-		ctx.setVariable("selectedExam", data);
-		
-		
-		templateEngine.process(path, ctx, response.getWriter());
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-	}
 
 	public void destroy() {
 		try {
@@ -146,3 +146,4 @@ public class SearchRound extends HttpServlet {
 		
 	}
 }
+

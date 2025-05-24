@@ -12,6 +12,7 @@ import java.time.format.DateTimeParseException;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +32,7 @@ import it.polimi.tiw.daos.*;
 
 
 @WebServlet("/Reject")
+@MultipartConfig
 public class Reject extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -66,93 +68,59 @@ public class Reject extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String loginpath = getServletContext().getContextPath() + "/index.html";
-		UserBean u = null;
-		HttpSession s = request.getSession();
-		if (s.isNew() || s.getAttribute("user") == null) {
-			response.sendRedirect(loginpath);
-			return;
-		} else {
-			u = (UserBean) s.getAttribute("user");
-			if (u.getCourse().equals("Docente")) {
-				response.sendRedirect(loginpath);
-				return;
-			}
-		}
-		
-		if(request.getParameter("selectedCourseID") == null || request.getParameter("selectedExam") == null) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you have not selected a course ID or an exam date!");
-			return;
-		}
-		
-		int selectedCourseID;
-		
-		try {
-		selectedCourseID = Integer.parseInt(request.getParameter("selectedCourseID"));
-		LocalDate date = LocalDate.parse(request.getParameter("selectedExam"), DateTimeFormatter.ISO_LOCAL_DATE);
-		}catch (DateTimeParseException | NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "SQL injection is forbidden!");
-			return;
-		}
-		
-		String date = request.getParameter("selectedExam");
-		
-		
-		String path = "/WEB-INF/StudentRejectMarkPage.html";
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
-        WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
-        ctx.setVariable("selectedCourseID", selectedCourseID);
-        ctx.setVariable("selectedExam", date);
-        
-		templateEngine.process(path, ctx, response.getWriter());
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String loginpath = getServletContext().getContextPath() + "/index.html";
-		UserBean u = null;
-		HttpSession s = request.getSession();
-		if (s.isNew() || s.getAttribute("user") == null) {
-			response.sendRedirect(loginpath);
+		
+		HttpSession session = request.getSession(false);
+		if (session == null || session.getAttribute("user") == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Unauthorized");
 			return;
-		} else {
-			u = (UserBean) s.getAttribute("user");
-			if (u.getCourse().equals("Docente")) {
-				response.sendRedirect(loginpath);
-				return;
-			}
 		}
 		
-		if(request.getParameter("selectedCourseID") == null || request.getParameter("selectedExam") == null) {
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user.getCourse().equals("Docente")) {
+			System.out.println("prova1");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.getWriter().write("Forbidden");
+			return;
+		}
+		
+		if(request.getParameter("CourseSelect") == null || request.getParameter("DataSelect") == null) {
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you have not selected a course ID or an exam date!");
 			return;
 		}
 		
 		int selectedCourseID;
-		
 		try {
-		selectedCourseID = Integer.parseInt(request.getParameter("selectedCourseID"));
-		LocalDate date = LocalDate.parse(request.getParameter("selectedExam"), DateTimeFormatter.ISO_LOCAL_DATE);
-		}catch (DateTimeParseException | NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "SQL injection is forbidden!");
+			selectedCourseID = Integer.parseInt(request.getParameter("CourseSelect"));
+		} catch (NumberFormatException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Invalid course ID");
 			return;
 		}
 		
-		String date = request.getParameter("selectedExam");
+		LocalDate selectedExam;
+		try {
+			selectedExam =  LocalDate.parse(request.getParameter("DataSelect"), DateTimeFormatter.ISO_LOCAL_DATE);
+		} catch (DateTimeParseException e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Invalid exam date");
+			return;
+		}
 
 		ExamDAO eDAO = new ExamDAO(connection);
+		String data = request.getParameter("DataSelect");
 		
 		try {
-			eDAO.rejectMark(selectedCourseID, date, u.getId());
+			eDAO.rejectMark(selectedCourseID, data, user.getId());
+			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (SQLException e) {
 			//throw new ServletException(e);
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database rejecting the mark");
  		}
-		
-		
-		response.sendRedirect(request.getContextPath() + "/SearchRound?selectedCourseID="+ selectedCourseID + "&selectedExam=" + URLEncoder.encode(date, "UTF-8"));
-
-		
 	}
 
 	public void destroy() {
