@@ -12,9 +12,13 @@ function dropHandler(ev) {
   if (ev.target.id === "markRejectButton" ||         
         ev.target.closest("#markRejectButton")) {     
 		document.getElementById("courseSelectionContainer").style.display = "none";
-		document.getElementById("dateSelectionContainer").style.display = "none";   
+		document.getElementById("courseSelectionContainer").style.borderTop = "none";
+		document.getElementById("dateSelectionContainer").style.display = "none";
+		document.getElementById("dateSelectionContainer").style.borderTop = "none";      
 		document.getElementById("markTableContainer").style.display = "none";
+		document.getElementById("markTableContainer").style.borderTop = "none";
 		document.getElementById("markRejectButton").style.display = "none";
+		document.getElementById("markRejectButton").style.borderTop = "none";
 		createtButtons();
     }
 }
@@ -44,11 +48,17 @@ function createtButtons(){
 function handleCancel(){
 	console.log("CLICK su Annulla");
 	document.getElementById("CancelTitle").style.display = "none";
+	document.getElementById("CancelTitle").style.borderTop = "none";
 	document.getElementById("Buttons").style.display = "none";
 	document.getElementById("courseSelectionContainer").style.display = "block";
-	document.getElementById("dateSelectionContainer").style.display = "block";   
+	document.getElementById("courseSelectionContainer").style.borderTop = "block";
+	document.getElementById("dateSelectionContainer").style.display = "block"; 
+	document.getElementById("dateSelectionContainer").style.borderTop = "block";  
 	document.getElementById("markTableContainer").style.display = "block";
+	document.getElementById("markTableContainer").style.borderTop = "block";
 	document.getElementById("markRejectButton").style.display = "block";
+	document.getElementById("markRejectButton").style.borderTop = "block";
+
 }
 
 function handleReject(){
@@ -63,9 +73,12 @@ function handleReject(){
 			if (req.readyState == XMLHttpRequest.DONE) {
 				if (req.status == 200) {
 					document.getElementById("CancelTitle").style.display = "none";
+					document.getElementById("CancelTitle").style.borderTop = "none";
 					document.getElementById("Buttons").style.display = "none";
 					document.getElementById("courseSelectionContainer").style.display = "block";
-					document.getElementById("dateSelectionContainer").style.display = "block"; 
+					document.getElementById("courseSelectionContainer").style.borderTop = "block";
+					document.getElementById("dateSelectionContainer").style.display = "block";
+					document.getElementById("dateSelectionContainer").style.borderTop = "block"; 
 			    } else {
 					alert("Errore durante il rifiuto");
 				}

@@ -95,9 +95,11 @@
 						const message = document.getElementById("Empty");
 						if(response.state == "pubblicato" || response.state == "rifiutato" || response.state == "verbalizzato"){
 							message.style.display = "none";
+							message.style.borderTop = "none";
 							createMarkTable(response);
 						}else{
 							message.style.display = "block";
+							message.style.borderTop = "block";
 							message.innerHTML = "<h3>L'esito dell'appello non è stato ancora pubblicato</h3>";
 						}
 					} else if (req.status === 401) {
@@ -116,12 +118,20 @@
 	
 	function createMarkRejectButton(){
 		const button = document.createElement("button");
-		button.textContent = "Rifiuta voto";
-	    button.className = "btn btn-danger";
+	    button.className = "btn-reject";
 	    button.type = "button";
-	    buttonContainer.innerHTML = "";    
+	    buttonContainer.innerHTML = "";  
+		const icon = document.createElement("img");
+		  icon.src = "icona.jpg";
+		  icon.alt = "Rifiuta voto";
+		  icon.style.width  = "100px";
+		  icon.style.height = "100px";  
 	    buttonContainer.appendChild(button);
+		button.appendChild(icon);
+		const caption = document.createElement("span");
+		  caption.textContent = "Rifiuta voto";
+		  caption.style.color = "White";
+		button.appendChild(caption);
 	}
-	
 	
 })();

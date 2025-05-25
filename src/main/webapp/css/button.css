@@ -62,6 +62,25 @@
   background: var(--accent-color);
 }
 
+.btn-reject {
+	background: var(--accent-color);
+	display: flex;           
+  	flex-direction: column;  
+  	justify-content: center;
+  	align-items: center;     
+  	gap: 0.5rem;            
+  	padding: 1rem 1.2rem;
+}
+
+.btn-reject:hover{
+  background:#c0392b;
+}
+
+.btn-reject:hover img{
+  transform: scale(1.05);
+  transition: transform .15s;
+}
+
 .btn-danger:hover {
   background: #c0392b;
 }
