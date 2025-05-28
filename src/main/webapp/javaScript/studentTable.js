@@ -4,11 +4,16 @@
     const URL_PUBLISH_GRADES = "PublishGrades";
     const URL_VERBALIZE_GRADES = "VerbalizeGrades";
     const URL_GET_VERBAL = "GoToVerbalPage";
-    const URL_GET_VERBALS = "GetVerbals"
+    const URL_GET_VERBALS = "GetVerbals";
+    const URL_MULTIPLE_GRADES = "MultipleGrades";
 
     //table container: used for the student table, verbal table, single verbal students table
     const tableContainer = document.getElementById("studentTableContainer");
     const tableTitle = document.getElementById("studentTableTitle");
+    const modal = document.getElementById("multipleGradesModal");
+    const closeBtn = document.querySelector(".close");
+    let currentCourseId = null;
+    let currentDate = null;
 
     function makeCall(method, url, formData, cback) {
         var req = new XMLHttpRequest();
@@ -310,6 +315,9 @@
 
     //general student table generator
     function createStudentTable(students, courseId, courseName, date) {
+        currentCourseId = courseId;
+        currentDate = date;
+
         tableContainer.style.display = "block";
         tableTitle.classList.remove("success-title");
         //cleaning the table container, except the title
@@ -347,6 +355,18 @@
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "center";
 
+        // Add Multiple Grades button if there are students with "non inserito" state
+        const hasNonInserito = students.some(student => student.state === "non inserito");
+        if (hasNonInserito) {
+            const multipleGradesButton = document.createElement("button");
+            multipleGradesButton.className = "btn btn-primary center";
+            multipleGradesButton.textContent = "Inserimento Multiplo";
+            multipleGradesButton.addEventListener("click", function () {
+                showMultipleGradesModal(students);
+            });
+            buttonContainer.appendChild(multipleGradesButton);
+        }
+
         const publishButton = document.createElement("button");
         publishButton.className = "btn btn-primary center";
         publishButton.textContent = "Pubblica i voti inseriti";
@@ -365,6 +385,120 @@
 
         tableContainer.appendChild(buttonContainer);
     }
+
+    // Function to show the multiple grades modal
+    function showMultipleGradesModal(students) {
+        const modalContainer = document.getElementById("multipleGradesTableContainer");
+        modalContainer.innerHTML = "";
+
+        // Create table for non-inserito students
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        const headers = ["Matricola", "Cognome", "Nome", "Email", "Voto"];
+        headers.forEach(headerText => {
+            const th = document.createElement("th");
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        students.forEach(student => {
+            if (student.state === "non inserito") {
+                const tr = document.createElement("tr");
+                tr.dataset.studentId = student.id; // Store student ID in data attribute
+                const cells = [
+                    student.matr,
+                    student.surname,
+                    student.name,
+                    student.mail
+                ];
+
+                cells.forEach(cellData => {
+                    const td = document.createElement("td");
+                    td.textContent = cellData;
+                    tr.appendChild(td);
+                });
+
+                // Add grade select
+                const gradeCell = document.createElement("td");
+                const gradeSelect = createGradeDropdown(student);
+                gradeCell.appendChild(gradeSelect);
+                tr.appendChild(gradeCell);
+
+                tbody.appendChild(tr);
+            }
+        });
+        table.appendChild(tbody);
+        modalContainer.appendChild(table);
+
+        // Make table sortable
+        window.tableSorter.makeSortable(table);
+
+        // Show modal and disable body scroll
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
+
+    // Function to hide modal and re-enable body scroll
+    function hideModal() {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+
+    // Function to submit multiple grades
+    function submitMultipleGrades() {
+        const grades = [];
+        const rows = document.querySelectorAll("#multipleGradesTableContainer tbody tr");
+
+        rows.forEach(row => {
+            const cells = row.cells;
+            const studentId = row.dataset.studentId; // Get student ID from data attribute
+            const grade = row.querySelector("select").value;
+            grades.push({ studentId, grade });
+        });
+
+        const formData = new FormData();
+        formData.append("courseId", currentCourseId);
+        formData.append("date", currentDate);
+        formData.append("grades", JSON.stringify(grades));
+
+        makeCall("POST", URL_MULTIPLE_GRADES, formData, function (req) {
+            if (req.readyState === XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    hideModal();
+                    handleViewButtonClick(currentCourseId, currentDate);
+                } else if (req.status === 401) {
+                    window.location.href = "index.html";
+                } else {
+                    alert("Errore nell'inserimento dei voti: " + req.responseText);
+                }
+            }
+        });
+    }
+
+    // Modal event listeners
+    window.addEventListener("load", () => {
+        // Existing verbals button listener
+        document.getElementById("viewVerbalsButton").addEventListener("click", getVerbals);
+
+        // Modal close button
+        closeBtn.addEventListener("click", hideModal);
+
+        // Close modal when clicking outside
+        window.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                hideModal();
+            }
+        });
+
+        // Submit multiple grades button
+        document.getElementById("submitMultipleGrades").addEventListener("click", submitMultipleGrades);
+    });
 
     //function used in professorForms.js when the user wants to see students of a specific exam by clicking the button
     function handleViewButtonClick(courseId, date) {

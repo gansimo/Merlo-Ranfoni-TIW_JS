@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/form.css?v=1.0">
     <link rel="stylesheet" href="css/table.css?v=1.0">
     <link rel="stylesheet" href="css/verbal.css?v=1.0">
+    <link rel="stylesheet" href="css/modal.css?v=1.0">
     <script src="./javaScript/professorForms.js" charset="utf-8" defer></script>
     <script src="./javaScript/studentTable.js" charset="utf-8" defer></script>
     <script src="./javaScript/sortTable.js" charset="utf-8" defer></script>
@@ -56,6 +57,21 @@
             <button type="button" id="viewVerbalsButton" class="btn center">Visualizza i tuoi verbali</button>
         </div>
     </main>
+
+    <!-- Modal for multiple grade insertion -->
+    <div id="multipleGradesModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Inserimento Multiplo Voti</h2>
+            <div id="multipleGradesTableContainer">
+                <!-- The filtered table will be dynamically inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="submitMultipleGrades" class="btn btn-primary">Invia Voti</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 Università Megalopoli, Milano</p>
     </footer>
