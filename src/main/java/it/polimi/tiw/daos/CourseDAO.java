@@ -18,7 +18,7 @@ public class CourseDAO{
 	
 	public List<Exam> findExams(int courseID, int profID) throws SQLException {
 		List<Exam> exams = new ArrayList<Exam>();
-		String query = "SELECT a.data FROM Appello AS a JOIN Corso AS c ON a.id_corso = c.id WHERE a.id_corso = ? AND c.id_prof = ?;";
+		String query = "SELECT a.data FROM Appello AS a JOIN Corso AS c ON a.id_corso = c.id WHERE a.id_corso = ? AND c.id_prof = ? ORDER BY a.data DESC;";
 		try (PreparedStatement pstatement = con.prepareStatement(query)) {
 	        pstatement.setInt(1, courseID);
 	        pstatement.setInt(2, profID);
@@ -40,7 +40,7 @@ public class CourseDAO{
 		List<Exam> exams = new ArrayList<Exam>();
 		String query = "SELECT data \n"
 				+ "FROM Iscrizioni_Appello \n"
-				+ "WHERE id_corso = ? AND id_studente = ?; \n";
+				+ "WHERE id_corso = ? AND id_studente = ? ORDER BY a.data DESC; \n";
 		try (PreparedStatement pstatement = con.prepareStatement(query)) {
 	        pstatement.setInt(1, courseID);
 	        pstatement.setInt(2, studID);

@@ -86,7 +86,7 @@ private Connection con;
 				+ "WHERE c.id_prof = ?\r\n"
 				+ "ORDER BY \r\n"
 				+ "  c.nome      ASC,\r\n"
-				+ "  v.data      ASC;\r\n"
+				+ "  v.data      DESC;\r\n"
 				+ "";
 		
 		try (PreparedStatement pstatement = con.prepareStatement(query);) {
@@ -97,7 +97,7 @@ private Connection con;
                 	verb.setCourseID(result.getInt("id_corso"));
                 	verb.setDate(result.getDate("data_verbale").toString());
                 	verb.setExamDate(result.getDate("data").toString());
-                	verb.setHour(result.getTimestamp("ora_verbale").toString());
+                	verb.setHour(result.getTimestamp("ora_verbale").toLocalDateTime().toLocalTime().toString());
                 	verb.setID(result.getInt("id"));
                 	verb.setCourseName(result.getString("nome"));
                 	
@@ -129,7 +129,7 @@ private Connection con;
                 	verb.setCourseID(result.getInt("v.id_corso"));
                 	verb.setDate(result.getDate("v.data_verbale").toString());
                 	verb.setExamDate(result.getDate("v.data").toString());
-                	verb.setHour(result.getTimestamp("v.ora_verbale").toString());
+                	verb.setHour(result.getTimestamp("ora_verbale").toString());
                 	verb.setID(result.getInt("v.id"));
                 	verb.setCourseName(result.getString("co.nome"));
                 }

@@ -24,7 +24,7 @@ public class StudentDAO {
                        "JOIN Iscrizioni_corsi AS ic ON ic.id_corso = c.id \n" +
                        "JOIN Utente AS u ON c.id_prof = u.id \n" +
                        "WHERE ic.id_studente = ? \n" +
-                       "ORDER BY c.nome ASC;";
+                       "ORDER BY c.nome DESC;";
 
         try (PreparedStatement pstatement = con.prepareStatement(query)) {
             pstatement.setInt(1, studID);
