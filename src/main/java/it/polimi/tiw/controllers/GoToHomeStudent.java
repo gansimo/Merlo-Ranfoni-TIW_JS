@@ -115,7 +115,6 @@ public class GoToHomeStudent extends HttpServlet {
 
 		UserBean user = (UserBean) session.getAttribute("user");
 		if (user.getCourse().equals("Docente")) {
-			System.out.println("prova1");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			response.getWriter().write("Forbidden");
 			return;
@@ -125,7 +124,6 @@ public class GoToHomeStudent extends HttpServlet {
 		try {
 			selectedCourseID = Integer.parseInt(request.getParameter("courseSelect"));
 		} catch (NumberFormatException e) {
-			System.out.println("prova2");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid course ID");
 			return;
@@ -135,7 +133,6 @@ public class GoToHomeStudent extends HttpServlet {
 		List<Exam> exams;
 		try {
 			exams = cDAO.findStudentExams(selectedCourseID, user.getId());
-			System.out.println(exams);
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(gson.toJson(exams));
