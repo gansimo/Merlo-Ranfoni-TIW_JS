@@ -40,7 +40,7 @@ public class CourseDAO{
 		List<Exam> exams = new ArrayList<Exam>();
 		String query = "SELECT data \n"
 				+ "FROM Iscrizioni_Appello \n"
-				+ "WHERE id_corso = ? AND id_studente = ? ORDER BY a.data DESC; \n";
+				+ "WHERE id_corso = ? AND id_studente = ? ORDER BY data DESC; \n";
 		try (PreparedStatement pstatement = con.prepareStatement(query)) {
 	        pstatement.setInt(1, courseID);
 	        pstatement.setInt(2, studID);

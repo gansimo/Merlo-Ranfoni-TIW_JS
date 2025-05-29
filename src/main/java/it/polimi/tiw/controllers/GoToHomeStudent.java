@@ -10,7 +10,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -22,23 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
-import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
 import it.polimi.tiw.beans.*;
 import it.polimi.tiw.daos.*;
-
-
 
 @WebServlet("/GoToHomeStudent")
 @MultipartConfig
 public class GoToHomeStudent extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
-	private TemplateEngine templateEngine;
 	private Gson gson;
 
 	public GoToHomeStudent() {
@@ -47,13 +37,6 @@ public class GoToHomeStudent extends HttpServlet {
 	}
 
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
 		try {
 			ServletContext context = getServletContext();
 			String driver = context.getInitParameter("dbDriver");
@@ -62,12 +45,12 @@ public class GoToHomeStudent extends HttpServlet {
 			String password = context.getInitParameter("dbPassword");
 			Class.forName(driver);
 			connection = DriverManager.getConnection(url, user, password);
+			gson = new Gson();
 		} catch (ClassNotFoundException e) {
 			throw new UnavailableException("Can't load database driver");
 		} catch (SQLException e) {
 			throw new UnavailableException("Couldn't get db connection");
 		}
-		gson = new Gson();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -115,17 +98,22 @@ public class GoToHomeStudent extends HttpServlet {
 
 		UserBean user = (UserBean) session.getAttribute("user");
 		if (user.getCourse().equals("Docente")) {
-			System.out.println("prova1");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			response.getWriter().write("Forbidden");
 			return;
 		}
 
+		String courseSelectParam = request.getParameter("courseSelect");
+		if (courseSelectParam == null || courseSelectParam.trim().isEmpty()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Missing courseSelect parameter");
+			return;
+		}
+
 		int selectedCourseID;
 		try {
-			selectedCourseID = Integer.parseInt(request.getParameter("courseSelect"));
+			selectedCourseID = Integer.parseInt(courseSelectParam);
 		} catch (NumberFormatException e) {
-			System.out.println("prova2");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid course ID");
 			return;
@@ -135,13 +123,21 @@ public class GoToHomeStudent extends HttpServlet {
 		List<Exam> exams;
 		try {
 			exams = cDAO.findStudentExams(selectedCourseID, user.getId());
-			System.out.println(exams);
+			if (exams == null) {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().write("Error retrieving exams");
+				return;
+			}
+			
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(gson.toJson(exams));
 		} catch (SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Database error");
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().write("Unexpected error");
 		}
 	}
 		

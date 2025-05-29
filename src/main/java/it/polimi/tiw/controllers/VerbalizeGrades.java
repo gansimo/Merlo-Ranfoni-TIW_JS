@@ -97,26 +97,27 @@ public class VerbalizeGrades extends HttpServlet {
 			LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
 
 			StudentTableDAO stDAO = new StudentTableDAO(connection);
-			int updated = stDAO.verbalizeGrades(courseId, date, user.getId());
+
+			int studentsSetToVerbalized = stDAO.verbalizeGrades(courseId, date, user.getId());
 
 			response.setContentType("text/plain");
 			response.setCharacterEncoding("UTF-8");
 
-			if (updated > 0) {
-				List<RegisteredStudent> students = stDAO.getNewVerbalizedStudents(courseId, date, user.getId());
-				
-				if (students.isEmpty()) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.getWriter().write("No students to verbalize");
+			if (studentsSetToVerbalized > 0) {
+				List<RegisteredStudent> studentsToIncludeInVerbal = stDAO.getNewVerbalizedStudents(courseId, date, user.getId());
+
+				if (studentsToIncludeInVerbal.isEmpty()) {
+					response.getWriter().write("no_students_to_verbalize_unexpected");
 					return;
 				}
 
 				VerbalDAO vDAO = new VerbalDAO(connection);
 				VerbalBean newVerbal = vDAO.createVerbal(courseId, date);
-				
-				vDAO.insertNewVerbalizedStudents(students, newVerbal);
+
+				vDAO.insertNewVerbalizedStudents(studentsToIncludeInVerbal, newVerbal);
 
 				response.getWriter().write("success:" + newVerbal.getID());
+
 			} else {
 				response.getWriter().write("no_grades_to_verbalize");
 			}
@@ -125,8 +126,13 @@ public class VerbalizeGrades extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid parameters");
 		} catch (SQLException e) {
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().write("Database error");
+			response.getWriter().write("Database error during verbalization");
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().write("Unexpected server error during verbalization");
 		}
 	}
 	

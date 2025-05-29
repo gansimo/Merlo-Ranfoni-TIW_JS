@@ -50,7 +50,7 @@
 .btn-logout {
   background: var(--secondary-color);
   float: right;
-  margin-right: 1rem; 
+  margin-right: 1rem;
 }
 
 .btn-logout:hover {
@@ -62,29 +62,67 @@
   background: var(--accent-color);
 }
 
+#markRejectButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .btn-reject {
-	background: var(--accent-color);
-	display: flex;           
-  	flex-direction: column;  
-  	justify-content: center;
-  	align-items: center;     
-  	gap: 0.5rem;            
-  	padding: 1rem 1.2rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  box-shadow: none;
+  transition: border 0.2s, background 0.2s;
+  cursor: pointer;
+  outline: none;
+  position: relative;
 }
 
-.btn-reject:hover{
-  background:#c0392b;
+.btn-reject img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: block;
+  pointer-events: none;
 }
 
-.btn-reject:hover img{
-  transform: scale(1.05);
-  transition: transform .15s;
+.btn-reject span {
+  display: none;
+}
+
+.btn-reject:hover {
+  background: transparent;
+  border: none;
+}
+
+.btn-reject.dragover {
+  background: #fee;
+  border: 3px solid #f00;
 }
 
 .btn-danger:hover {
   background: #c0392b;
 }
 
+#markRejectButton .btn-reject {
+  border: 2px dashed #c00;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
 
 .btn-sm {
   padding: 0.4rem 0.8rem;

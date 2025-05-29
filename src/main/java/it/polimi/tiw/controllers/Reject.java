@@ -19,24 +19,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
-import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
 import it.polimi.tiw.beans.UserBean;
 import it.polimi.tiw.beans.*;
 import it.polimi.tiw.daos.*;
-
-
 
 @WebServlet("/Reject")
 @MultipartConfig
 public class Reject extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
-	private TemplateEngine templateEngine;
 
 	public Reject() {
 		super();
@@ -44,13 +35,6 @@ public class Reject extends HttpServlet {
 	}
 
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
 		try {
 			ServletContext context = getServletContext();
 			String driver = context.getInitParameter("dbDriver");
@@ -87,16 +71,27 @@ public class Reject extends HttpServlet {
 			response.getWriter().write("Forbidden");
 			return;
 		}
-		
-		if(request.getParameter("CourseSelect") == null || request.getParameter("DataSelect") == null) {
+
+		// Debug: print all parameters
+		System.out.println("[DEBUG] Received parameters:");
+		request.getParameterMap().forEach((k, v) -> System.out.println("  " + k + " = " + java.util.Arrays.toString(v)));
+
+		String courseParam = request.getParameter("CourseSelect");
+		String dateParam = request.getParameter("DataSelect");
+		System.out.println("[DEBUG] CourseSelect: " + courseParam);
+		System.out.println("[DEBUG] DataSelect: " + dateParam);
+
+		if(courseParam == null || dateParam == null) {
+			System.out.println("[DEBUG] Missing CourseSelect or DataSelect parameter");
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you have not selected a course ID or an exam date!");
 			return;
 		}
 		
 		int selectedCourseID;
 		try {
-			selectedCourseID = Integer.parseInt(request.getParameter("CourseSelect"));
+			selectedCourseID = Integer.parseInt(courseParam);
 		} catch (NumberFormatException e) {
+			System.out.println("[DEBUG] Invalid course ID: " + courseParam);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid course ID");
 			return;
@@ -104,23 +99,25 @@ public class Reject extends HttpServlet {
 		
 		LocalDate selectedExam;
 		try {
-			selectedExam =  LocalDate.parse(request.getParameter("DataSelect"), DateTimeFormatter.ISO_LOCAL_DATE);
+			selectedExam =  LocalDate.parse(dateParam, DateTimeFormatter.ISO_LOCAL_DATE);
 		} catch (DateTimeParseException e) {
+			System.out.println("[DEBUG] Invalid exam date: " + dateParam);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid exam date");
 			return;
 		}
 
 		ExamDAO eDAO = new ExamDAO(connection);
-		String data = request.getParameter("DataSelect");
+		String data = dateParam;
 		
 		try {
 			eDAO.rejectMark(selectedCourseID, data, user.getId());
+			System.out.println("[DEBUG] Mark rejected successfully for course " + selectedCourseID + " and date " + data);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (SQLException e) {
-			//throw new ServletException(e);
+			System.out.println("[DEBUG] SQL Exception: " + e.getMessage());
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database rejecting the mark");
- 		}
+		}
 	}
 
 	public void destroy() {

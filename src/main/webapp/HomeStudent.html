@@ -14,21 +14,24 @@
     <link rel="stylesheet" href="css/form.css?v=1.0">
     <link rel="stylesheet" href="css/table.css?v=1.0">
     <link rel="stylesheet" href="css/verbal.css?v=1.0">
-    
+    <script src="./javaScript/studentHome.js" charset="utf-8"></script>
+    <script src="./javaScript/dragAndDrop.js" charset="utf-8"></script>
+
 </head>
 
 <body>
-  <header>
+    <header>
         <h1>MegaloPoli - Home Page Studente</h1>
-		<h3>Bentornato <span id="userName">Nome</span> <span id="userSurname">Cognome</span></h3>
-		<div>
+        <h3>Bentornato <span id="userName">Nome</span> <span id="userSurname">Cognome</span></h3>
+        <div>
             <button id="logoutButton" class="btn btn-logout">Logout</button>
-        </div>        
+        </div>
     </header>
-  
-  <main>
-  
-    	<section id="courseSelectionContainer" class="form-container">
+
+    <main>
+        <div id="alert" class="alert"></div>
+
+        <section id="courseSelectionContainer" class="form-container">
             <form id="courseForm">
                 <label for="courseSelect">Seleziona corso:</label>
                 <select name="courseSelect" id="courseSelect" required>
@@ -46,26 +49,24 @@
             </form>
             <p id="noDatesMessage" class="message">Non ci sono date disponibili per questo corso</p>
         </section>
-     
-        <section id="Empty" class = "title-container"></section>
-        
-	    <section id="markTableContainer" class="table-container" draggable="true" ondragstart="dragstartHandler(event)">
-	        <h2 id="markTableTitle" draggable="true" ondragstart="dragstartHandler(event)"></h2>
-	    	<!-- The mark table will be dynamically inserted here -->
-	    </section>
-	    
-	    <div id="markRejectButton" class="center" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)"></div>
-	    
-	    <div id="CancelTitle" class = "title-container"></div>
-	    <div id="Buttons" class="center"></div>
-	    
-  </main>
-    
-  <footer>
-      <p>&copy; 2025 Universit‡ MegaloPoli, Milano</p>
-  </footer>
+
+        <section id="Empty" class="title-container"></section>
+
+        <section id="markTableContainer" class="table-container">
+            <h2 id="markTableTitle"></h2>
+            <!-- The mark table will be dynamically inserted here -->
+        </section>
+
+        <div id="markRejectButton" class="center"></div>
+
+        <div id="CancelTitle" class="title-container"></div>
+        <div id="Buttons" class="center"></div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Universit√† MegaloPoli, Milano</p>
+    </footer>
 </body>
-<script src="./javaScript/studentForm.js" charset="utf-8" ></script>
-<script src="./javaScript/studentHomeGenerator.js" charset="utf-8" ></script>
-<script src="./javaScript/dragAndDrop.js" charset="utf-8" ></script>
+
 </html>
