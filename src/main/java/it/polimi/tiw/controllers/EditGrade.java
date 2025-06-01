@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import it.polimi.tiw.beans.UserBean;
 import it.polimi.tiw.daos.StudentTableDAO;
@@ -89,6 +92,7 @@ public class EditGrade extends HttpServlet {
         try {
             int courseId = Integer.parseInt(selectedCourseID);
             int studentId = Integer.parseInt(selectedStudentID);
+            LocalDate locDate = LocalDate.parse(request.getParameter("date"), DateTimeFormatter.ISO_LOCAL_DATE);
 
             if (!newGrade.equals("assente") && !newGrade.equals("rimandato") && !newGrade.equals("riprovato") && !newGrade.equals("30 e lode")) {
                 int gradeValue = Integer.parseInt(newGrade);
@@ -107,7 +111,7 @@ public class EditGrade extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("success");
 
-        } catch (NumberFormatException e) {
+        } catch (DateTimeParseException | NumberFormatException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Invalid parameters");
