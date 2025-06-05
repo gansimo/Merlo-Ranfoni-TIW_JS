@@ -20,4 +20,56 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+  <filter>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <filter-class>it.polimi.tiw.filters.ProfessorAuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/EditGrade</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/GetVerbals</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/GoToHomeProfessor</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/GoToStudentTable</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/GoToVerbalPage</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/MultipleGrades</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/PublishGrades</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ProfessorAuthFilter</filter-name>
+    <url-pattern>/VerbalizeGrades</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>StudentAuthFilter</filter-name>
+    <filter-class>it.polimi.tiw.filters.StudentAuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>StudentAuthFilter</filter-name>
+    <url-pattern>/GoToHomeStudent</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>StudentAuthFilter</filter-name>
+    <url-pattern>/Reject</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>StudentAuthFilter</filter-name>
+    <url-pattern>/SearchRound</url-pattern>
+  </filter-mapping>
 </web-app>

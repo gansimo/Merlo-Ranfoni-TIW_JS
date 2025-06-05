@@ -55,19 +55,9 @@ public class GoToHomeStudent extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		if (session == null || session.getAttribute("user") == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Unauthorized");
-			return;
-		}
-
-		UserBean user = (UserBean) session.getAttribute("user");
-		if (user.getCourse().equals("Docente")) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			response.getWriter().write("Forbidden");
-			return;
-		}
+		UserBean user = null;
+		HttpSession s = request.getSession();
+		user = (UserBean) s.getAttribute("user");
 		
 		StudentDAO sDAO = new StudentDAO(connection);
 		List<Course> courses;
@@ -89,19 +79,9 @@ public class GoToHomeStudent extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		HttpSession session = request.getSession(false);
-		if (session == null || session.getAttribute("user") == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Unauthorized");
-			return;
-		}
-
-		UserBean user = (UserBean) session.getAttribute("user");
-		if (user.getCourse().equals("Docente")) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			response.getWriter().write("Forbidden");
-			return;
-		}
+		UserBean user = null;
+		HttpSession s = request.getSession();
+		user = (UserBean) s.getAttribute("user");
 
 		String courseSelectParam = request.getParameter("courseSelect");
 		if (courseSelectParam == null || courseSelectParam.trim().isEmpty()) {

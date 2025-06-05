@@ -64,19 +64,9 @@ public class EditGrade extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized");
-            return;
-        }
-
-        UserBean user = (UserBean) session.getAttribute("user");
-        if (!user.getCourse().equals("Docente")) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Forbidden");
-            return;
-        }
+    	UserBean user = null;
+		HttpSession s = request.getSession();
+		user = (UserBean) s.getAttribute("user");
 
         String selectedCourseID = request.getParameter("selectedCourseID");
         String selectedStudentID = request.getParameter("selectedStudentID");

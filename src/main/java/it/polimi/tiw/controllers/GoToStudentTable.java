@@ -64,18 +64,9 @@ public class GoToStudentTable extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		UserBean user = (UserBean) session.getAttribute("user");
-		
-		if (session.isNew() || user == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-		
-		if (!user.getCourse().equals("Docente")) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
+		UserBean user = null;
+		HttpSession s = request.getSession();
+		user = (UserBean) s.getAttribute("user");
 		
 		if (request.getParameter("selectedCourseID") == null || request.getParameter("date") == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
