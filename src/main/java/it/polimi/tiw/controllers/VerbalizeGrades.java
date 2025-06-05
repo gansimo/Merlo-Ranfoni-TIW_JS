@@ -82,7 +82,11 @@ public class VerbalizeGrades extends HttpServlet {
 			return;
 		}
 
+		boolean transactionCompletedSuccessfully = false;
+		
 		try {
+			connection.setAutoCommit(false);
+			
 			int courseId = Integer.parseInt(selectedCourseID);
 			LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
 
@@ -111,19 +115,43 @@ public class VerbalizeGrades extends HttpServlet {
 			} else {
 				response.getWriter().write("no_grades_to_verbalize");
 			}
+			
+			connection.commit();
+		    transactionCompletedSuccessfully = true;
 
 		} catch (DateTimeParseException | NumberFormatException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid parameters");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		    try {
+		        if (connection != null) {
+		            //rollback in caso di errore
+		            connection.rollback();
+		        }
+		    } catch (SQLException ex) {
+		        System.err.println("Errore durante il tentativo di rollback: " + ex.getMessage());
+		        ex.printStackTrace();
+		        //eventuale errore di rollback (grave, problemi di connessione)
+		    }
+		    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Database error during verbalization");
+			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Unexpected server error during verbalization");
-		}
+		} finally {
+ 		    try {
+ 		        if (connection != null) {
+ 		            //ripristino auto-commit allo stato di default
+ 		            connection.setAutoCommit(true);
+ 		        }
+ 		    } catch (SQLException ex) {
+ 		        System.err.println("Errore durante il ripristino dell'auto-commit: " + ex.getMessage());
+ 		        ex.printStackTrace();
+ 		    }
+ 		}
 	}
 	
 	public void destroy() {
