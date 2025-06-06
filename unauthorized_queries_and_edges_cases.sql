@@ -13,8 +13,7 @@ DROP TABLE IF EXISTS Appello;
 DROP TABLE IF EXISTS Corso;
 DROP TABLE IF EXISTS Utente;
 
-DELIMITER $$
-
+DELIMITER $$ -- Il delimiter qui è stato inserito perchè c'è più di un " ; " che di default MySQL considera come il carattere di terminazione
 -- VINCOLO: Ogni utente in corso sia docente
 CREATE TRIGGER trg_check_docente
 BEFORE INSERT ON Corso
@@ -23,36 +22,34 @@ BEGIN
     DECLARE tipo VARCHAR(45);
     SELECT corso_laurea INTO tipo FROM Utente WHERE id = NEW.id_prof;
     IF tipo <> 'Docente' THEN
-        SIGNAL SQLSTATE '45000'
+        SIGNAL SQLSTATE '45000' -- Errore programmato dall'utente in mySQL
         SET MESSAGE_TEXT = 'L\'utente associato non è un docente';
     END IF;
 END $$
 
--- VINCOLO: Controlla che chi si iscrive a un appello sia uno studente
+$$
 CREATE TRIGGER trg_check_Studente_Iscrizioni_Appello
 BEFORE INSERT ON Iscrizioni_Appello
 FOR EACH ROW
 BEGIN
     DECLARE tipo VARCHAR(45);
-    -- NOTA: Corretto potenziale refuso, dovrebbe essere NEW.id_studente
-    SELECT corso_laurea INTO tipo FROM Utente WHERE id = NEW.id_studente;
+    SELECT corso_laurea INTO tipo FROM Utente WHERE id = NEW.id_prof;
     IF tipo = 'Docente' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'L\'utente associato è un docente e non può iscriversi a un appello';
+        SIGNAL SQLSTATE '45000' -- Errore programmato dall'utente in mySQL
+        SET MESSAGE_TEXT = 'L\'utente associato è un docente';
     END IF;
 END $$
 
--- VINCOLO: Controlla che chi si iscrive a un corso sia uno studente
+$$
 CREATE TRIGGER trg_check_Studente_Iscrizioni_Corsi
 BEFORE INSERT ON Iscrizioni_Corsi
 FOR EACH ROW
 BEGIN
     DECLARE tipo VARCHAR(45);
-    -- NOTA: Corretto potenziale refuso, dovrebbe essere NEW.id_studente
-    SELECT corso_laurea INTO tipo FROM Utente WHERE id = NEW.id_studente;
+    SELECT corso_laurea INTO tipo FROM Utente WHERE id = NEW.id_prof;
     IF tipo = 'Docente' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'L\'utente associato è un docente e non può iscriversi a un corso';
+        SIGNAL SQLSTATE '45000' -- Errore programmato dall'utente in mySQL
+        SET MESSAGE_TEXT = 'L\'utente associato è un docente';
     END IF;
 END $$
 
@@ -132,10 +129,9 @@ CREATE TABLE Iscrizioni_Corsi (
 
 
 -- #################################################
--- # POPOLAMENTO DATI DI TEST (CON ESTENSIONI PER TEST NON AUTORIZZATI)
+-- # POPOLAMENTO DATI DI TEST
 -- #################################################
 
--- 1) UTENTI: Docenti e Studenti
 INSERT INTO Utente (mail, psw, nome, cognome, matricola, corso_laurea) VALUES
   -- Docenti (ID AUTO_INCREMENT: 1, 2, 3)
   ('docente1@uni.it', 'pswDocente1', 'Marco', 'Rossi', NULL, 'Docente'),         -- ID 1 (docente titolare di corsi)
@@ -167,11 +163,13 @@ INSERT INTO Appello (id_corso, data) VALUES
   (1, '2025-06-15'),
   (1, '2025-07-10'),
 
-  -- Appello per Fisica 1 (ID Corso 3)
+  -- Appelli per Fisica 1 (ID Corso 3)
   (3, '2025-06-20'), -- Questo appello avrà studenti iscritti
+  (3, '2025-09-10'), -- Questo appello NON avrà studenti iscritti
 
   -- NUOVO APPELLO per Programmazione I (ID Corso 2)
   (2, '2025-07-01'); -- Per avere un appello anche per Programmazione I
+
 
 -- 4) ISCRIZIONI AI CORSI
 INSERT INTO Iscrizioni_Corsi (id_corso, id_studente) VALUES
@@ -196,15 +194,15 @@ INSERT INTO Iscrizioni_Corsi (id_corso, id_studente) VALUES
 -- 5) ISCRIZIONI AGLI APPELLI
 INSERT INTO Iscrizioni_Appello (id_corso, data, id_studente, voto, stato) VALUES
   -- Studenti iscritti ad Analisi Matematica (ID Corso 1), appello del 2025-06-15
-  (1, '2025-06-15', 4, '28', 'pubblicato'),  -- Alice Verdi (ID 4)
-  (1, '2025-06-15', 5, '25', 'pubblicato'),  -- Luca Neri (ID 5)
+  (1, '2025-06-15', 4, '<vuoto>', 'non inserito'),  -- Alice Verdi (ID 4)
+  (1, '2025-06-15', 5, '<vuoto>', 'non inserito'),  -- Luca Neri (ID 5)
   (1, '2025-06-15', 7, '<vuoto>', 'non inserito'), -- Matteo Bruno (ID 7) - NUOVA ISCRIZIONE per popolare l'appello
 
   -- Alice Verdi (ID 4) iscritta al secondo appello di Analisi Matematica (ID Corso 1)
   (1, '2025-07-10', 4, '<vuoto>', 'non inserito'), -- Per testare studente con più iscrizioni ad appelli dello stesso corso
 
   -- Matteo Bruno (ID 7) iscritto all'appello di Fisica 1 (ID Corso 3), appello del 2025-06-20
-  (3, '2025-06-20', 7, '30', 'inserito'), -- Questo popola l'appello di Fisica 1.
+  (3, '2025-06-20', 7, '<vuoto>', 'non inserito'), -- Questo popola l'appello di Fisica 1.
                                           -- Alice (ID 4) è iscritta al corso Fisica 1 (ID 3) MA NON a questo appello, utile per test.
 
   -- Sofia Gallo (ID 8) iscritta all'appello di Programmazione I (ID Corso 2), appello del 2025-07-01
@@ -212,11 +210,3 @@ INSERT INTO Iscrizioni_Appello (id_corso, data, id_studente, voto, stato) VALUES
 
   -- L'appello di Chimica Organica (ID Corso 4) non esiste, quindi nessuno studente può esservi iscritto.
   -- Giulia Russo (ID 6) non è iscritta a nessun appello.
-
--- 6) (Opzionale) Verbalizzazione di un appello (esempio, se necessario)
--- INSERT INTO Verbale (data_verbale, ora_verbale, id_corso, data) VALUES
---   ('2025-06-16', CURRENT_TIMESTAMP, 1, '2025-06-15');
--- SET @last_verbale_id = LAST_INSERT_ID();
--- INSERT INTO Studenti_Verbale (id_verbale, id_studente) VALUES
---   (@last_verbale_id, 4),
---   (@last_verbale_id, 5);
