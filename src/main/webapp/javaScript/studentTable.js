@@ -364,6 +364,7 @@
         this.submitMultipleGrades = function () {
             const grades = [];
             const rows = document.querySelectorAll("#multipleGradesTableContainer tbody tr");
+			let KO = false;
 
             rows.forEach(row => {
                 const studentId = row.dataset.studentId;
@@ -374,12 +375,16 @@
 			    const isStringOK = stringValues.includes(grade);
 				
 			    if (!(isNumericOK || isStringOK)) {
+					KO = true;
 			        alert("Errore: il voto che stai cercando di inserire non è consentito.");
 					return;
 			    }
 				
                 grades.push({ studentId, grade });		//appending the couple into the array
             });
+			
+			if(KO == true)
+				return;
 
             const formData = new FormData();
             formData.append("courseId", this.currentCourseId);
