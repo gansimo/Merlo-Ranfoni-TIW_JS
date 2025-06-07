@@ -61,17 +61,10 @@ public class Reject extends HttpServlet {
 		HttpSession s = request.getSession();
 		user = (UserBean) s.getAttribute("user");
 
-		// Debug: print all parameters
-		System.out.println("[DEBUG] Received parameters:");
-		request.getParameterMap().forEach((k, v) -> System.out.println("  " + k + " = " + java.util.Arrays.toString(v)));
-
 		String courseParam = request.getParameter("CourseSelect");
 		String dateParam = request.getParameter("DataSelect");
-		System.out.println("[DEBUG] CourseSelect: " + courseParam);
-		System.out.println("[DEBUG] DataSelect: " + dateParam);
 
 		if(courseParam == null || dateParam == null) {
-			System.out.println("[DEBUG] Missing CourseSelect or DataSelect parameter");
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error: you have not selected a course ID or an exam date!");
 			return;
 		}
@@ -80,7 +73,6 @@ public class Reject extends HttpServlet {
 		try {
 			selectedCourseID = Integer.parseInt(courseParam);
 		} catch (NumberFormatException e) {
-			System.out.println("[DEBUG] Invalid course ID: " + courseParam);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid course ID");
 			return;
@@ -90,7 +82,6 @@ public class Reject extends HttpServlet {
 		try {
 			selectedExam =  LocalDate.parse(dateParam, DateTimeFormatter.ISO_LOCAL_DATE);
 		} catch (DateTimeParseException e) {
-			System.out.println("[DEBUG] Invalid exam date: " + dateParam);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid exam date");
 			return;
@@ -101,10 +92,8 @@ public class Reject extends HttpServlet {
 		
 		try {
 			eDAO.rejectMark(selectedCourseID, data, user.getId());
-			System.out.println("[DEBUG] Mark rejected successfully for course " + selectedCourseID + " and date " + data);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (SQLException e) {
-			System.out.println("[DEBUG] SQL Exception: " + e.getMessage());
 			response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Failure in database rejecting the mark");
 		}
 	}

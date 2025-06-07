@@ -70,6 +70,7 @@ public class GoToStudentTable extends HttpServlet {
 		
 		if (request.getParameter("selectedCourseID") == null || request.getParameter("date") == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Missing parameters");
 			return;
 		}
 		
@@ -82,6 +83,7 @@ public class GoToStudentTable extends HttpServlet {
 			stringDate = request.getParameter("date");
 		} catch (DateTimeParseException | NumberFormatException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write("Error: wrong parameters!");
 			return;
 		}
 		

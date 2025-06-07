@@ -100,6 +100,10 @@
         this.handleViewButton = function () {
             const courseId = document.getElementById("courseSelect").value;
             const date = document.getElementById("dateSelect").value;
+			document.getElementById("markTableContainer").style.display = "none";
+            document.getElementById("markTableContainer").style.borderTop = "none";
+            document.getElementById("markRejectButton").style.display = "none";
+            document.getElementById("markRejectButton").style.borderTop = "none";
             if (courseId && date) {
                 this.searchRound(courseId, date);
             }

@@ -84,7 +84,7 @@ public class GoToHomeProfessor extends HttpServlet {
 		int selectedCourseID;
 		try {
 			selectedCourseID = Integer.parseInt(request.getParameter("courseSelect"));
-		} catch (NumberFormatException e) {
+		} catch (NullPointerException | NumberFormatException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write("Invalid course ID");
 			return;

@@ -144,7 +144,20 @@
                 editButton.className = "btn btn-sm";
                 editButton.textContent = "Modifica";
                 editButton.addEventListener("click", () => {
-                    this.updateGrade(student.id, courseId, date, gradeSelect.value);		//dynamic assigning the stud id and grade to the button event
+					if (gradeSelect) {
+					    const value = gradeSelect.value;
+					    const numericValue = Number(value);
+					    const stringValues = ["assente", "rimandato", "riprovato", "30 e lode"];
+					    const isNumericOK = !isNaN(numericValue) && numericValue >= 18 && numericValue <= 30;
+					    const isStringOK = stringValues.includes(value);
+						
+					    if (isNumericOK || isStringOK) {
+					        this.updateGrade(student.id, courseId, date, value); //dynamic assigning the stud id and grade to the button event
+					    }
+						else{
+							alert("Errore: il voto che stai cercando di inserire non è consentito.");
+						}
+					}	
                 });
                 actionCell.appendChild(editButton);
             }
@@ -355,6 +368,16 @@
             rows.forEach(row => {
                 const studentId = row.dataset.studentId;
                 const grade = row.querySelector("select").value;
+			    const numericValue = Number(grade);
+			    const stringValues = ["assente", "rimandato", "riprovato", "30 e lode"];
+			    const isNumericOK = !isNaN(numericValue) && numericValue >= 18 && numericValue <= 30;
+			    const isStringOK = stringValues.includes(grade);
+				
+			    if (!(isNumericOK || isStringOK)) {
+			        alert("Errore: il voto che stai cercando di inserire non è consentito.");
+					return;
+			    }
+				
                 grades.push({ studentId, grade });		//appending the couple into the array
             });
 

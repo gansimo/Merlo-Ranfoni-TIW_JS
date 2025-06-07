@@ -15,6 +15,5 @@ function dropHandler(ev) {
 	//handling drop if the target is the button itself
 	if (ev.target.classList.contains("btn-reject")) {
 		ev.target.classList.remove("dragover");
-		createButtons();
 	}
 }

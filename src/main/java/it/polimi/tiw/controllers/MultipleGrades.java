@@ -85,9 +85,8 @@ public class MultipleGrades extends HttpServlet {
 
         try {
             int courseId = Integer.parseInt(courseIdStr);
-            
-            // Parse the JSON array of grades using Map instead of inner class
-            // TypeToken è necessario per gestire i generics a runtime
+           
+            //TypeToken necessario per gestire i generics a runtime
             List<Map<String, String>> grades = gson.fromJson(gradesJson, 
                 new TypeToken<ArrayList<Map<String, String>>>(){}.getType());
             
@@ -97,10 +96,9 @@ public class MultipleGrades extends HttpServlet {
                 return;
             }
 
-            // Validate all grades before processing
+            //validazione voti
             for (Map<String, String> entry : grades) {
                 String grade = entry.get("grade");
-                // Validazione diretta del voto
                 if (!grade.equals("assente") && !grade.equals("rimandato") && 
                     !grade.equals("riprovato") && !grade.equals("30 e lode")) {
                     try {
@@ -118,7 +116,7 @@ public class MultipleGrades extends HttpServlet {
                 }
             }
 
-            // Process all grades
+
             StudentTableDAO stDAO = new StudentTableDAO(connection);
             for (Map<String, String> entry : grades) {
                 String studentId = entry.get("studentId");
@@ -127,7 +125,6 @@ public class MultipleGrades extends HttpServlet {
                 stDAO.updateGrade(courseId, date, studID, grade, "inserito", user.getId());
             }
 
-            // Return success response
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("success");
@@ -138,7 +135,7 @@ public class MultipleGrades extends HttpServlet {
             response.getWriter().write("Invalid parameters");
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Database error");
+            response.getWriter().write("Error: cannot find any of your students with this parameters!");
         }
     }
     

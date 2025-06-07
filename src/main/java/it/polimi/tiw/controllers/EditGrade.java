@@ -107,7 +107,7 @@ public class EditGrade extends HttpServlet {
             response.getWriter().write("Invalid parameters");
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Database error");
+            response.getWriter().write("Error: cannot find any of your students with this parameters!");
         }
     }
     

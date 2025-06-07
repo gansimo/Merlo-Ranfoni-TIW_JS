@@ -84,7 +84,6 @@ public class GoToVerbalPage extends HttpServlet {
 			VerbalBean verb = vDAO.getVerbal(verbID, user.getId());
 			
 			if(verb.getExamDate() == null) {
-				System.out.println("GoToVerbalPage: Forbidden - Verbal not found or not authorized");
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				response.getWriter().write("Not authorized to view this verbal");
 				return;
