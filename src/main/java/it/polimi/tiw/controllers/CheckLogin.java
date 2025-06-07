@@ -79,6 +79,9 @@ public class CheckLogin extends HttpServlet {
 			request.getSession().setAttribute("user", null);
 		} else {
 			request.getSession().setAttribute("user", u);
+			response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+			response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+			response.setHeader("Expires", "0"); // Proxies.
 			String targetPage = (u.getCourse().equals("Docente")) ? "HomeProfessor.html" : "HomeStudent.html";
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\": true, \"redirect\": \"" + targetPage + "\"}");
