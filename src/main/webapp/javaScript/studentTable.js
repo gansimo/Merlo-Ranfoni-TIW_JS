@@ -383,7 +383,7 @@
                 grades.push({ studentId, grade });		//appending the couple into the array
             });
 			
-			if(KO == true)
+			if(KO === true)
 				return;
 
             const formData = new FormData();
